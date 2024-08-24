@@ -76,6 +76,10 @@ class gameTile {
             }
         }
     
+        void startFlip() { isFlipping = true; }
+        void flipOn() { flipped = true; }
+        void flipOff() { flipped = false; }
+        bool isFlipped() {  return flipped; }
     
     void update() {
         if (isFlipping) {
@@ -87,15 +91,11 @@ class gameTile {
             }
         }
     }
-        void startFlip() { isFlipping = true; }
-        void flipOn() { flipped = true; }
-        void flipOff() { flipped = false; }
-        bool isFlipped() {  return flipped; }
 
 
     virtual void draw() {
         ofPushMatrix();
-
+        
         // Translate to the center of the tile
         ofTranslate(position.x + width / 2, position.y + height / 2);
 
@@ -104,6 +104,7 @@ class gameTile {
 
         // Check the rotation angle to determine which side to draw
         if (rotationAngle < 90 || rotationAngle >= 270) {
+
             // Draw the back of the tile normally
             backOfTile.draw(-width / 2, -height / 2, width, height);
         } else {
@@ -146,6 +147,8 @@ class infoTile  {
             row_col[1] = col;
             position = ofPoint(x_pos, y_pos);
 
+            markCol = false;
+            markRow = false;
 
 
             topPart = to_string(PointCount);
@@ -163,7 +166,8 @@ class infoTile  {
             if (markRow) {
                 for (unsigned int colIndex = 0; colIndex < tileGrid[row_col[0]].size(); colIndex++) {
                     if (tileGrid[row_col[0]][colIndex]) {
-                        
+                        // ofLog(OF_LOG_NOTICE, "Checking Row: " + to_string(row_col[0]) + ", Column: " + to_string(colIndex));
+                        // cout << "Checking Row: " << row_col[0] << ", Column: " << colIndex << endl;
                         PointCount += tileGrid[row_col[0]][colIndex]->getValue();
 
                         if (tileGrid[row_col[0]][colIndex]->getValue() == 0) {
@@ -176,6 +180,9 @@ class infoTile  {
             else { 
                 for (unsigned int rowIndex = 0; rowIndex < tileGrid.size(); rowIndex++) {
                     if (tileGrid[rowIndex][row_col[1]]) {
+                        cout << "Checking Row: " << rowIndex << ", Column: " << row_col[1] << endl;
+                        cout << "Value: " << tileGrid[rowIndex][row_col[1]]->getValue() << endl;
+
                         PointCount += tileGrid[rowIndex][row_col[1]]->getValue();
 
                         if (tileGrid[rowIndex][row_col[1]]->getValue() == 0) {
@@ -203,5 +210,7 @@ class infoTile  {
 
                 ofSetColor(ofColor::white);
                 voltorbMini.draw(position.x + 2.5, position.y + 81.5, 66, 66);
+                ofDrawBitmapString("Row: " + to_string(row_col[0]) + " Col: " + to_string(row_col[1]), position.x, position.y );
+
             }
 };

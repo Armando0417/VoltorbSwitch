@@ -25,7 +25,7 @@ void ofApp::setup(){
         {0, 0, 1, 3, 2},
         {0, 0, 0, 0, 2},
         {0, 2, 1, 3, 0},
-        {0, 0, 1, 3, 0},
+        {0, 0, 1, 0, 0},
         {1, 2, 3, 2, 1}
     };
 
@@ -61,9 +61,11 @@ void ofApp::setup(){
             if (row == gridSize || col == gridSize) {
                 infoTileGrid[row][col] = make_unique<infoTile>(currX, currY, row, col);
                 if (row == gridSize) {
+                    cout << "Marking row: " << row << endl;
                     infoTileGrid[row][col]->markColOn();
                 }
                 else {
+                    cout << "Marking col: " << col << endl;
                     infoTileGrid[row][col]->markRowOn();
                 }
                     infoTileGrid[row][col]->countPoints(tileGrid);
