@@ -93,6 +93,13 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    for (auto& row : tileGrid) {
+        for (auto& tile : row) {
+            if (tile) {
+                tile->update();
+            }
+        }
+    }
     // if (ruleManager->checkDefeat(tileGrid)) {
     //     // Handle defeat: reset game, show defeat message, etc.
     //     ofLog() << "Defeat! Try again.";
@@ -148,21 +155,7 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-    for (unsigned int row = 0; row < tileGrid.size(); row++) {
-        for (unsigned int col = 0; col < tileGrid[row].size(); col++) {
-            if (tileGrid[row][col]) {
- 
-                if(tileGrid[row][col]->mouseHovering(x, y)) {
-                   tileGrid[row][col]->flipOn();
-                }
 
-                else {
-                    tileGrid[row][col]->flipOff();
-                }
-            }
-        }
-
-    }
 
     
 }
@@ -173,7 +166,21 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
+    for (unsigned int row = 0; row < tileGrid.size(); row++) {
+        for (unsigned int col = 0; col < tileGrid[row].size(); col++) {
+            if (tileGrid[row][col]) {
+ 
+                if(tileGrid[row][col]->mouseHovering(x, y) && button == OF_MOUSE_BUTTON_1) {
+                   tileGrid[row][col]->startFlip();
+                }
 
+                // else {
+                //     tileGrid[row][col]->flipOff();
+                // }
+            }
+        }
+
+    }
 }
 
 //--------------------------------------------------------------

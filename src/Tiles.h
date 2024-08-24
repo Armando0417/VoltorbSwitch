@@ -27,7 +27,10 @@ class gameTile {
         ofImage backOfTile;
         ofImage frontOfTile;
 
-        bool hovered;
+
+    // For the animation only
+    float rotationAngle = 0; // Initial rotation angle
+    bool isFlipping = false; // To control the flipping state
 
     public:
 
@@ -66,32 +69,52 @@ class gameTile {
 
         bool mouseHovering(int x, int y) {
             if ((x > position.x) && (x < position.x + width) && (y > position.y) && (y < position.y + height)) {
-                hovered = true;
                 return true;
             }
             else {
-                hovered = false;
                 return false;
             }
         }
-
+    
+    
+    void update() {
+        if (isFlipping) {
+            rotationAngle += 10; // Adjust speed as needed
+            if (rotationAngle >= 180) {
+                rotationAngle = 180;
+                isFlipping = false;
+                flipOn(); // Set the tile as flipped after 180 degrees
+            }
+        }
+    }
+        void startFlip() { isFlipping = true; }
         void flipOn() { flipped = true; }
         void flipOff() { flipped = false; }
         bool isFlipped() {  return flipped; }
 
 
-        virtual void draw() {
-        
+    virtual void draw() {
+        ofPushMatrix();
 
+        // Translate to the center of the tile
+        ofTranslate(position.x + width / 2, position.y + height / 2);
 
-        if(!flipped) {
-            backOfTile.draw(position.x, position.y, width, height);
-        }
-        else {
-            frontOfTile.draw(position.x, position.y, width, height);
+        // Rotate around the X-axis to simulate the flipping effect
+        ofRotateXDeg(rotationAngle);
+
+        // Check the rotation angle to determine which side to draw
+        if (rotationAngle < 90 || rotationAngle >= 270) {
+            // Draw the back of the tile normally
+            backOfTile.draw(-width / 2, -height / 2, width, height);
+        } else {
+            // Draw the front of the tile but flip it vertically
+            ofScale(1, -1); // Flip the image vertically
+            frontOfTile.draw(-width / 2, -height / 2, width, height);
         }
 
-        }
+        ofPopMatrix();
+    }
+
 };  
 
 
