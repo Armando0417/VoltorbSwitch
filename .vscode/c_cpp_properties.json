@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+        "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/src/**",
+                "${workspaceFolder}/../../../libs/**",
+                "C:\\Users\\Public\\of_v0.11.2_msys2_mingw32_release\\libs\\openFrameworks\\**",
+                "C:/msys64/mingw32/include/cairo",
+                "C:\\Users\\Public\\of_v0.11.2_msys2_mingw32_release\\addons\\ofxGui\\src\\*" 
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "C:\\msys64\\mingw32\\bin\\gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "windowsSdkVersion": "10.0.17134.0"
+        }
+    ],
+    "version": 4
+}
