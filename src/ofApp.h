@@ -3,54 +3,73 @@
 #include "ofMain.h"
 #include "Tiles.h"
 
-class RuleManager {
+class gameGrids {
+
 	public:
-		map<tileType, int> tileCount;
-	
+		vector<vector<shared_ptr<gameTile>>> tileGrid;
+		vector<vector<shared_ptr<infoTile>>> infoTileGrid;
+		
+		gameGrids(vector<vector<int>>& currentLevel) {
+			int gridSize = 5;
+			int rows = gridSize + 1;
+			int cols = gridSize + 1;
 
-		RuleManager() {
-			tileCount[tileType::VOLTORB] = 0;
-            tileCount[tileType::ONE] = 0;
-            tileCount[tileType::TWO] = 0;
-            tileCount[tileType::THREE] = 0;
-		}
+			tileGrid.resize(rows); 
+			infoTileGrid.resize(rows);
+			for (int i = 0; i < rows; i++) {
+				tileGrid[i].resize(cols);
+				infoTileGrid[i].resize(cols);
+			}
 
-		void countTiles(vector<vector<unique_ptr<gameTile>>>& tileGrid) {
-			for (unsigned int row = 0; row < tileGrid.size(); row++) {
-				for (unsigned int col = 0; col < tileGrid[row].size(); col++) {
-					if (tileGrid[row][col]) {
-						tileCount[tileGrid[row][col]->getValueType()]++;
+			int startX = 100;
+			int startY = 100;
+			int spacing = (150 + 30);
+
+			for (int row = 0; row < rows; row++) { 
+				for (int col = 0; col < cols; col++) {
+
+					int currX = col * spacing + startX;
+					int currY = row * spacing + startY;
+
+
+					if (row == gridSize && col == gridSize) {
+						break;
 					}
+
+					if (row == gridSize || col == gridSize) {
+						infoTileGrid[row][col] = make_shared<infoTile>(currX, currY, row, col);
+						if (row == gridSize) {
+							cout << "Marking row: " << row << endl;
+							infoTileGrid[row][col]->markColOn();
+						}
+						else {
+							cout << "Marking col: " << col << endl;
+							infoTileGrid[row][col]->markRowOn();
+						}
+							infoTileGrid[row][col]->countPoints(tileGrid);
+					}
+
+					else {
+						tileGrid[row][col] = make_shared<gameTile>(currX, currY, row, col);
+						if (currentLevel[row][col] == 0) {
+							tileGrid[row][col]->setValue(tileType::VOLTORB);
+						}
+						else if (currentLevel[row][col] == 1) {
+							tileGrid[row][col]->setValue(tileType::ONE);
+						} 
+						else if (currentLevel[row][col] == 2) {
+							tileGrid[row][col]->setValue(tileType::TWO);
+						} 
+						else if (currentLevel[row][col] == 3) {
+							tileGrid[row][col]->setValue(tileType::THREE);
+						}
+					
+					}
+
 				}
 			}
 		}
-
-		bool checkVictory() {
-			// Win when there are no more Two's or Three's in the grid
-			return tileCount[tileType::TWO] == 0 && tileCount[tileType::THREE] == 0;
-		}
-
-
-        bool checkDefeat(vector<vector<unique_ptr<gameTile>>>& tileGrid) {
-            for (auto& row : tileGrid) {
-                for (auto& tile : row) {
-                    if (tile && tile->getValue() == tileType::VOLTORB && tile->isFlipped()) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-		void updateTileCount(tileType type) {
-            if (tileCount.find(type) != tileCount.end()) {
-                tileCount[type]--;
-            }
-        }
-
-
 };
-
 
 
 class ofApp : public ofBaseApp{
@@ -73,21 +92,41 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
 
-	vector<vector<unique_ptr<gameTile>>> tileGrid;
-	vector<vector<unique_ptr<infoTile>>> infoTileGrid;
+	ofSoundPlayer ost;
+	bool songPlaying = false;
+
+	vector<vector<shared_ptr<gameTile>>> tileGrid;
+	vector<vector<shared_ptr<infoTile>>> infoTileGrid;
 	ofTrueTypeFont font;
 
 	//	Author's note: I'm so sorry
 		vector < vector < vector <int> > > levels; // This is just a vector that contains all of the levels (which are the grids of the game)
-	
-	// unique_ptr<RuleManager> ruleManager;
+		vector<gameGrids> levelList;
 
-	
+	map<tileType, int> tileValueCounts;
 
-	int currentLevel = 0;
 
+	unsigned int currentLevel = 0;
+
+
+	void countTiles();
+	void updateTileCount(tileType type);
 	
+	bool checkVictory();
+
+	bool victory;
+	bool gameFinished;
+	bool defeat;
+
+	bool countedTile = false;
+	int checkTimer = 0;
+
+	bool checkDefeat();
+
+	void setupLevel();
 
 };
+
+
 
 

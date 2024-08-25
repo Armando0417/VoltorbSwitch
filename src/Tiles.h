@@ -24,9 +24,11 @@ class gameTile {
         int height = 150;
         
         bool flipped;
+        bool hovering;
         ofImage backOfTile;
         ofImage frontOfTile;
-
+        ofImage hoverImage;
+        ofSoundPlayer flipSound;
 
     // For the animation only
     float rotationAngle = 0; // Initial rotation angle
@@ -39,8 +41,10 @@ class gameTile {
             row_col[1] = col;
             position = ofPoint(x_pos, y_pos);
             flipped = false;
-
+            hovering = false;
             backOfTile.load("images/backOfTile.png");
+            hoverImage.load("images/hover.png");
+            flipSound.load("flipSound.mp3");
         }
         
         void setValue(tileType _value) {
@@ -76,7 +80,7 @@ class gameTile {
             }
         }
     
-        void startFlip() { isFlipping = true; }
+        void startFlip() { isFlipping = true; flipSound.play();}
         void flipOn() { flipped = true; }
         void flipOff() { flipped = false; }
         bool isFlipped() {  return flipped; }
@@ -112,9 +116,21 @@ class gameTile {
             ofScale(1, -1); // Flip the image vertically
             frontOfTile.draw(-width / 2, -height / 2, width, height);
         }
-
+        if (hovering) {
+            hoverImage.draw(-width / 2, -height / 2, width, height);
+        }
         ofPopMatrix();
     }
+
+    void isHovering(int x, int y) {
+        if ((x > position.x) && (x < position.x + width) && (y > position.y) && (y < position.y + height)) {
+            hovering = true;
+        }
+        else {
+            hovering = false;
+        }
+    }
+
 
 };  
 
@@ -161,7 +177,7 @@ class infoTile  {
         void markColOn() { markCol = true; }
         void markRowOn() { markRow = true; }
 
-        void countPoints(vector<vector<unique_ptr<gameTile>>>& tileGrid) {
+        void countPoints(vector<vector<shared_ptr<gameTile>>>& tileGrid) {
             
             if (markRow) {
                 for (unsigned int colIndex = 0; colIndex < tileGrid[row_col[0]].size(); colIndex++) {
@@ -180,8 +196,8 @@ class infoTile  {
             else { 
                 for (unsigned int rowIndex = 0; rowIndex < tileGrid.size(); rowIndex++) {
                     if (tileGrid[rowIndex][row_col[1]]) {
-                        cout << "Checking Row: " << rowIndex << ", Column: " << row_col[1] << endl;
-                        cout << "Value: " << tileGrid[rowIndex][row_col[1]]->getValue() << endl;
+                        // cout << "Checking Row: " << rowIndex << ", Column: " << row_col[1] << endl;
+                        // cout << "Value: " << tileGrid[rowIndex][row_col[1]]->getValue() << endl;
 
                         PointCount += tileGrid[rowIndex][row_col[1]]->getValue();
 

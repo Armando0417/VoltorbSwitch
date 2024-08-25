@@ -2,99 +2,62 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    // ruleManager = make_unique<RuleManager>();
-    // levels = {
-    // {
-    //     {0, 0, 1, 3, 2},
-    //     {0, 0, 0, 0, 2},
-    //     {0, 2, 1, 3, 0},
-    //     {0, 0, 1, 3, 0},
-    //     {1, 2, 3, 2, 1}
-    // },
-    // { 
-    //     {1, 2, 3, 0, 1},
-    //     {0, 2, 0, 1, 2},
-    //     {2, 3, 1, 2, 3},
-    //     {1, 2, 3, 1, 2},
-    //     {3, 1, 0, 2, 1}
-    // }
-    // };
+    ost.load("music_intro.mp3");
+    ost.setLoop(true);
 
-    vector < vector <int > > testLevel 
+    vector<vector<int>> level_1 
     = {
         {0, 0, 1, 3, 2},
         {0, 0, 0, 0, 2},
         {0, 2, 1, 3, 0},
-        {0, 0, 1, 0, 0},
+        {0, 0, 1, 3, 0},
         {1, 2, 3, 2, 1}
     };
+    vector<vector<int>> level_2 
+    = {
+        {1, 2, 3, 0, 1},
+        {0, 2, 0, 1, 2},
+        {2, 3, 1, 2, 3},
+        {1, 2, 3, 1, 2},
+        {3, 1, 0, 2, 1}
+    };
+
+    levelList.clear();
+    gameGrids lvl1 = gameGrids(level_1);
+    levelList.push_back(lvl1);
+    gameGrids lvl2 = gameGrids(level_2);
+    levelList.push_back(lvl2);
+    
+
+    cout << "==========================================" << endl;
+    cout << "Level: " << currentLevel << endl;
+    victory = false;
+    gameFinished = false;
+    defeat = false;
 
 
-    font.load("pokemon-ds-font.ttf", 20);
-
-    int gridSize = 5;
-    int rows = gridSize + 1;
-    int cols = gridSize + 1;
-
-    tileGrid.resize(rows); 
-    infoTileGrid.resize(rows);
-    for (int i = 0; i < rows; i++) {
-        tileGrid[i].resize(cols);
-        infoTileGrid[i].resize(cols);
-    }
-
-    int startX = 100;
-    int startY = 100;
-    int spacing = (150 + 30);
-
-    for (int row = 0; row < rows; row++) { 
-        for (int col = 0; col < cols; col++) {
-
-            int currX = col * spacing + startX;
-            int currY = row * spacing + startY;
-
-
-            if (row == gridSize && col == gridSize) {
-                break;
+    for (auto& grid : levelList) {
+        for (auto& row : grid.tileGrid) {
+            for (auto& tile : row) {
+                if (tile) {
+                    tile->flipOff();
+                }
             }
-
-            if (row == gridSize || col == gridSize) {
-                infoTileGrid[row][col] = make_unique<infoTile>(currX, currY, row, col);
-                if (row == gridSize) {
-                    cout << "Marking row: " << row << endl;
-                    infoTileGrid[row][col]->markColOn();
-                }
-                else {
-                    cout << "Marking col: " << col << endl;
-                    infoTileGrid[row][col]->markRowOn();
-                }
-                    infoTileGrid[row][col]->countPoints(tileGrid);
-            }
-
-            else {
-                tileGrid[row][col] = make_unique<gameTile>(currX, currY, row, col);
-                if (testLevel[row][col] == 0) {
-                    tileGrid[row][col]->setValue(tileType::VOLTORB);
-                }
-                else if (testLevel[row][col] == 1) {
-                    tileGrid[row][col]->setValue(tileType::ONE);
-                } 
-                else if (testLevel[row][col] == 2) {
-                    tileGrid[row][col]->setValue(tileType::TWO);
-                } 
-                else if (testLevel[row][col] == 3) {
-                    tileGrid[row][col]->setValue(tileType::THREE);
-                }
-            
-            }
-
         }
     }
 
+
+    tileGrid = levelList[currentLevel].tileGrid;
+    infoTileGrid = levelList[currentLevel].infoTileGrid;
+    countTiles();
+
+    font.load("pokemon-ds-font.ttf", 80);
+    ost.play();
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    if (!victory && !defeat) {
     for (auto& row : tileGrid) {
         for (auto& tile : row) {
             if (tile) {
@@ -102,30 +65,19 @@ void ofApp::update(){
             }
         }
     }
-    // if (ruleManager->checkDefeat(tileGrid)) {
-    //     // Handle defeat: reset game, show defeat message, etc.
-    //     ofLog() << "Defeat! Try again.";
-    //     currentLevel = 0;
-    //     tileGrid.clear();
-    //     infoTileGrid.clear();
-    //     setup();
-
-
-    // }
-    // else if (ruleManager->checkVictory()) {
-    //     // Handle victory: advance to next level, show victory message, etc.
-    //     ofLog() << "Victory! Advancing to next level.";
-    //     currentLevel++;
-    //     if (currentLevel >= levels.size()) {
-    //         ofLog() << "You've completed all levels!";
-    //         // Optionally reset to level 0 or end the game
-    //     } 
-    //     else {
-    //         tileGrid.clear();
-    //         infoTileGrid.clear();
-    //         setup();    
-    //     }
-    // }
+    
+    if (checkTimer > 0) {
+        checkTimer--;
+        if (checkTimer == 0) {
+                if (checkDefeat()) {
+                    defeat = true;
+                }
+                else if (checkVictory()) {
+                    victory = true;
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -141,13 +93,51 @@ void ofApp::draw(){
             }
         }
     }
+    if (victory) {
+        ofSetBackgroundColor(ofColor::green);
+        font.drawString("Victory! You've won!", ofGetWidth()/2 - 50, 100);
+    }
+    else if (defeat) {
+        ofSetBackgroundColor(ofColor::red);
+        font.drawString("Defeat! You lost.", ofGetWidth()/2 - 50, 100);
+    }
+    else if (gameFinished) {
+        ofSetBackgroundColor(ofColor::white);
+        font.drawString("Game finished. Press space to restart.", ofGetWidth()/2 - 50, 100);
+    }
 
 
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    if (victory && key == ' ') {
+        victory = false;
+        if (currentLevel < levelList.size()) {
+           currentLevel++; 
+        }
+        else {
+            gameFinished = true;
+        }
+        tileGrid.clear();
+        infoTileGrid.clear();
+        setup();
+    }
+    if (defeat && key == ' ') {
+        defeat = false;
+        currentLevel = 0;
+        tileGrid.clear();
+        infoTileGrid.clear();
+         setup();
+    }
 
+    if (gameFinished && key == ' ') {
+        gameFinished = false;
+        tileGrid.clear();
+        infoTileGrid.clear();
+        currentLevel = 0;
+        setup();
+    }
 }
 
 //--------------------------------------------------------------
@@ -158,7 +148,13 @@ void ofApp::keyReleased(int key){
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
 
-
+    for (unsigned int row = 0; row < tileGrid.size(); row++) {
+        for (unsigned int col = 0; col < tileGrid[row].size(); col++) {
+            if (tileGrid[row][col]) {
+                tileGrid[row][col]->isHovering(x, y);
+            }
+        }
+    }
     
 }
 //--------------------------------------------------------------
@@ -173,12 +169,19 @@ void ofApp::mousePressed(int x, int y, int button){
             if (tileGrid[row][col]) {
  
                 if(tileGrid[row][col]->mouseHovering(x, y) && button == OF_MOUSE_BUTTON_1) {
-                   tileGrid[row][col]->startFlip();
+                    if (!tileGrid[row][col]->isFlipped()) {           
+                        tileGrid[row][col]->startFlip();
+                        cout << "Tile clicked: " << tileGrid[row][col]->getValueType() << endl;
+                        cout << "at Row: " << row << " Col: " << col << endl;
+                        countedTile = false;
+                        if(!countedTile) {
+                            updateTileCount(tileGrid[row][col]->getValueType());
+                            countedTile = true;
+                            checkTimer = 45;
+                        }
+                    }
                 }
 
-                // else {
-                //     tileGrid[row][col]->flipOff();
-                // }
             }
         }
 
@@ -215,5 +218,64 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }
 
+void ofApp::countTiles() {
+    tileValueCounts[tileType::VOLTORB] = 0;
+    tileValueCounts[tileType::ONE] = 0;
+    tileValueCounts[tileType::TWO] = 0;
+    tileValueCounts[tileType::THREE] = 0;
 
+    for(unsigned int i = 0; i < tileGrid.size(); i++) {
+        for(unsigned int j = 0; j < tileGrid[i].size(); j++) {
+            if(tileGrid[i][j]) {
+                tileValueCounts[tileGrid[i][j]->getValueType()]++;
+            }
+        }
+    }
+
+
+}
+
+void ofApp::updateTileCount(tileType type) {
+    if(tileValueCounts.find(type) != tileValueCounts.end()) {
+        if (tileValueCounts[type] > 0) {
+            tileValueCounts[type]--;
+        }
+        cout << "Updating tile count for: " << type << " to: " << tileValueCounts[type] << endl;
+        cout << "------" << endl;
+        cout << "current Count " << endl;
+        for (auto it = tileValueCounts.begin(); it != tileValueCounts.end(); it++) {
+            
+            cout << it->first << " : " << it->second << endl;
+        }
+    }
+}
+
+bool ofApp::checkVictory() {
+    // Win when there are no more Two's or Three's in the grid
+    if (tileValueCounts[tileType::TWO] == 0 && tileValueCounts[tileType::THREE] == 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool ofApp::checkDefeat() {
+    for (unsigned int i = 0; i < tileGrid.size(); i++) {
+        for (unsigned int j = 0; j < tileGrid[i].size(); j++) {
+            if (tileGrid[i][j]) {
+                if (tileGrid[i][j]->getValue() == tileType::VOLTORB) {
+                    if (tileGrid[i][j]->isFlipped()) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+void setupLevel() {
+
+}
 
