@@ -86,19 +86,19 @@ class gameTile {
             value = _value;
             if (value == VOLTORB) {
                 frontOfTile.load("Assets/TileImages/Voltorb.png");
-                flipSound.load("flip_explosionSound.mp3");
+                flipSound.load("Sounds/sfx/flipExplosionSound.mp3");
             }
             else if (value == ONE) {
                 frontOfTile.load("Assets/TileImages/One.png");
-                flipSound.load("flipSound.mp3");
+                flipSound.load("Sounds/sfx/flipSound.mp3");
             }
             else if (value == TWO) {
                 frontOfTile.load("Assets/TileImages/Two.png");
-                flipSound.load("flipSound.mp3");
+                flipSound.load("Sounds/sfx/flipSound.mp3");
             }
             else if (value == THREE) {
                 frontOfTile.load("Assets/TileImages/Three.png");
-                flipSound.load("flipSound.mp3");
+                flipSound.load("Sounds/sfx/flipSound.mp3");
             }
         }
         // This method is to give it the animation frames
@@ -193,7 +193,7 @@ class gameTile {
             hoverImage.draw(-width / 2, -height / 2, width, height);
         }
         else {
-            // borderImage.draw(-width / 2, -height / 2, width, height);
+            borderImage.draw(-width / 2, -height / 2, width, height);
         }
 
         //TODO : FIX THIS

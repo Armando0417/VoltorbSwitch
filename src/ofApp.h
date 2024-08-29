@@ -96,6 +96,7 @@ enum infoTileColors {
 class ofApp : public ofBaseApp{
 
 	public:
+	// Base ofApp stuff
 		void setup();
 		void update();
 		void draw();
@@ -113,24 +114,67 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
 
-	ofSoundPlayer ost;
+	// Game Methods
+		void setupLevel();
+		bool checkDefeat();
+		
+		void pullPointsFromBank(){
+			ifstream pointBank("pointBank.txt");
+			if (pointBank.is_open()) {
+				pointBank >> storedPoints;
+				pointBank.close();
+			} else {
+				storedPoints = 0; // Default to 0 if file doesn't exist
+			}
+		}
 
-	vector<vector<shared_ptr<gameTile>>> tileGrid;
-	vector<vector<shared_ptr<infoTile>>> infoTileGrid;
-	ofTrueTypeFont font;
-	ofTrueTypeFont titleFont;
-	ofImage background;
+		void storePointsInBank() {
+			ofstream pointBank("pointBank.txt");
+			if (pointBank.is_open()) {
+				pointBank << storedPoints + currentPoints;
+				storedPoints += currentPoints;
+				pointBank.close();
+			}
+		}
 
-	//	Author's note: I'm so sorry
-		vector < vector < vector <int> > > levels; // This is just a vector that contains all of the levels (which are the grids of the game)
+
+	// These are going to be for the levels themselves. Each GameGrid contains a 5x5 grid of GameTiles & 1 InfoTile per row AND column.
+	// FIXME: CHANGE TO OBJECTS
 		vector<gameGrids> levelList;
+		vector<vector<shared_ptr<gameTile>>> tileGrid; 
+		vector<vector<shared_ptr<infoTile>>> infoTileGrid;
 
-	map<tileType, int> tileValueCounts;
+	//Index for the current level in the levelList
+		unsigned int currentLevel = 0;
+
+	//TODO: These are for the game
+		map<tileType, int> tileValueCounts;
+	
+	//Animations for the tiles 
+	// (Reason they are here is so that each tile doesn't have to create a copy of the animation. Instead, you give them this vector for the animations)
+		vector<ofImage> success_animations;
+		vector<ofImage> voltorb_explosion;
 
 
-	unsigned int currentLevel = 0;
+	// These are for the OST
+		ofSoundPlayer ost;
+		ofSoundPlayer pointMult_sfx;
+		ofSoundPlayer levelBeat_sfx;
+		ofSoundPlayer pointsTallied_sfx;
 
-	bool firstBoot = false;
+
+	// These are for the UI
+	//FIXME: Make only one font
+		ofTrueTypeFont titleFont;
+		ofTrueTypeFont font;
+
+	//small flag to toggle the rules & points
+		bool showRules = true;
+		bool showPoints = true;
+
+	// Images for the ui
+		ofImage rules;
+		ofImage points;
 
 
 	void countTiles();
@@ -142,50 +186,19 @@ class ofApp : public ofBaseApp{
 	bool gameFinished;
 	bool defeat;
 
-	int mouseXCoord;
-	int mouseYCoord;
-
 	bool countedTile = false;
-	bool showRules = true;
 
 	int checkTimer = 0;
 
-	vector<ofImage> success_animations;
-	vector<ofImage> voltorb_explosion;
 
-	bool checkDefeat();
 
-	ofImage rules;
-	ofImage points;
-	int pointsCounter = 1;
+	int currentPoints = 1;
 	int storedPoints = 0;
 
-	ofSoundPlayer sfx;
 
+	//Boolean to make sure enough time passes before the next tile can be flipped
 	bool canPlay = true;
-	// void loseAnimation();
 
-
-	void setupLevel();
-
-	void pullPoints(){
-            ifstream highScoreFile("points.txt");
-            if (highScoreFile.is_open()) {
-                highScoreFile >> storedPoints;
-                highScoreFile.close();
-            } else {
-                storedPoints = 0; // Default to 0 if file doesn't exist
-            }
-        }
-
-		void writeHighScore() {
-            ofstream highScoreFile("points.txt");
-            if (highScoreFile.is_open()) {
-                highScoreFile << storedPoints + pointsCounter;
-                highScoreFile.close();
-            }
-        }
-	
 
 };
 

@@ -1,40 +1,40 @@
 #include "ofApp.h"
 
+//TODO: FIX gameFinished
+
+
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ost.load("music_intro.mp3");
+    ost.load("Sounds/music_intro.mp3");
     ost.setLoop(true);
-    sfx.load("pointIncreaseSfx.mp3");
-    background.load("Assets/background.png");
+    pointMult_sfx.load("Sounds/sfx/pointIncreaseSfx.mp3");
+    pointsTallied_sfx.load("Sounds/sfx/pointsTallied.mp3");
+    levelBeat_sfx.load("Sounds/sfx/levelBeat.mp3");
     rules.load("Assets/rules.png");
     points.load("Assets/points.png");
+        
+    for (int i = 0; i < 9; i++) { 
+        ofImage voltorbImage = ofImage();
+        voltorbImage.load("Assets/Animations/explode_frames/explode_" + ofToString(i) + ".png");
+        voltorb_explosion.push_back(voltorbImage);
+    }
 
-    if (firstBoot == false) {
-        for (int i = 0; i < 9; i++) { 
-            ofImage voltorbImage = ofImage();
-            voltorbImage.load("Assets/Animations/explode_frames/explode_" + ofToString(i) + ".png");
-            voltorb_explosion.push_back(voltorbImage);
-        }
-
-        for (int i = 0; i < 4; i++) { 
-            ofImage successImage = ofImage();
-            successImage.load("Assets/Animations/success_frames/success_" + ofToString(i) + ".png");
-            success_animations.push_back(successImage);
-        }
-        firstBoot = true;
+    for (int i = 0; i < 4; i++) { 
+        ofImage successImage = ofImage();
+        successImage.load("Assets/Animations/success_frames/success_" + ofToString(i) + ".png");
+        success_animations.push_back(successImage);
     }
 
     setupLevel();
 
-
-    cout << "==========================================" << endl;
-    cout << "Level: " << currentLevel << endl;
-
-
     font.load("pokemon-ds-font.ttf", 40);
-    titleFont.load("Silkscreen-Bold.ttf", 100);
-    ost.play();
+    titleFont.load("Silkscreen-Regular.ttf", 100);
     ost.setVolume(0.50);
+    ost.play();
+
+    currentPoints = 1; 
+    pullPointsFromBank();
+    checkTimer = 15;
 
 }
 
@@ -72,6 +72,7 @@ void ofApp::setupLevel() {
     gameGrids lvl2 = gameGrids(level_2, voltorb_explosion, success_animations);
     levelList.push_back(lvl2);
     gameGrids lvl3 = gameGrids(level_3, voltorb_explosion, success_animations);
+    levelList.push_back(lvl3);
 
     for (auto& grid : levelList) {
         for (auto& row : grid.tileGrid) {
@@ -87,11 +88,9 @@ void ofApp::setupLevel() {
     gameFinished = false;
     defeat = false;
 
-
     tileGrid = levelList[currentLevel].tileGrid;
     infoTileGrid = levelList[currentLevel].infoTileGrid;
     countTiles();
-    pointsCounter = 1; 
 }
 
 //--------------------------------------------------------------
@@ -111,7 +110,8 @@ void ofApp::update(){
                 if (checkDefeat()) {
                     defeat = true;
                 }
-                else if (checkVictory()) {
+                if (checkVictory()) {
+                    levelBeat_sfx.play();
                     victory = true;
                 }
             canPlay = true;
@@ -123,24 +123,28 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofSetBackgroundColor(41,165,107,255);
-    ofDrawBitmapString("FPS: " + ofToString(ofGetFrameRate()), 10, 20);
-
-    ofDrawBitmapString("X coord: " + ofToString(mouseXCoord), 10, 40);
-    ofDrawBitmapString("Y coord: " + ofToString(mouseYCoord), 10, 60);
-
-    ofDrawBitmapString("Width: " + ofToString(ofGetWidth()), 10, 80);
-    ofDrawBitmapString("Height: " + ofToString(ofGetHeight()), 10, 100);
 
     if (showRules) {
         ofSetColor(ofColor::white);
-        // font.drawString("Click on a Voltorb to flip it", ofGetWidth() * 3/4, 200);
         rules.draw(1200, 110, 650, 450);
-        font.drawString(to_string(currentLevel), 1630, 170);
+        font.drawString(to_string(currentLevel + 1), 1630, 170);
 
         points.draw(1200, 700, 650, 450);
         ofSetColor(ofColor::black);
-        titleFont.drawString(to_string(pointsCounter), 1580, 850);
-        titleFont.drawString(to_string(storedPoints), 1580, 1100);
+        string pointsStr = to_string(currentPoints);
+        string storedPointsStr = to_string(storedPoints);
+
+        // Calculate font size or adjust scaling based on the number of digits
+        int maxLength = max(pointsStr.length(), storedPointsStr.length());
+        int adjustedFontSize = 100 - (maxLength * 10); // Decrease font size as digits increase
+
+        // Load or scale font size dynamically
+        titleFont.load("Silkscreen-Regular.ttf", max(adjustedFontSize, 40)); // Ensure a minimum font size of 40
+
+        // Center or adjust the position of the text
+        float xPosition = 1580 - (maxLength * 10); // Adjust X position for centering
+        titleFont.drawString(pointsStr, xPosition, 850);
+        titleFont.drawString(storedPointsStr, xPosition, 1100);
         ofSetColor(ofColor::white);
     } 
 
@@ -164,17 +168,18 @@ void ofApp::draw(){
 
     if (victory) {
         ofSetBackgroundColor(ofColor::green);
-        font.drawString("Victory! You've won!", ofGetWidth()/2 - 50, 100);
+        font.drawString("Victory! You've won!", ofGetWidth()* 3/4 - 50, 100);
     }
     else if (defeat) {
         ofSetBackgroundColor(ofColor::red);
         font.drawString("Defeat! You lost.", ofGetWidth() * 3/4 - 50, 100);
-        pullPoints();
-        writeHighScore();
+        pullPointsFromBank();
+        storePointsInBank();
     }
     else if (gameFinished) {
         ofSetBackgroundColor(ofColor::white);
-        font.drawString("Game finished. Press space to restart.", ofGetWidth()/2 - 50, 100);
+        font.drawString("Game finished. Press space to restart.", ofGetWidth()* 3/4 - 50, 100);
+        storePointsInBank();
     }
 
 }
@@ -192,10 +197,14 @@ void ofApp::keyPressed(int key){
         tileGrid.clear();
         infoTileGrid.clear();
         setupLevel();
+        storePointsInBank();
+        currentPoints = 1;
+        pointsTallied_sfx.play();
     }
     if (defeat && key == ' ') {
         defeat = false;
         currentLevel = 0;
+        currentPoints = 1; 
         tileGrid.clear();
         infoTileGrid.clear();
         setupLevel();
@@ -229,9 +238,7 @@ void ofApp::mouseMoved(int x, int y ){
             }
         }
     }
-    mouseXCoord = x;
-    mouseYCoord = y;
-    
+
 }
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
@@ -248,13 +255,11 @@ void ofApp::mousePressed(int x, int y, int button){
                     if (!tileGrid[row][col]->isFlipped()) {
                         canPlay = false;           
                         tileGrid[row][col]->startFlip();
-                        // cout << "Tile clicked: " << tileGrid[row][col]->getValueType() << endl;
-                        // cout << "at Row: " << row << " Col: " << col << endl;
-                        countedTile = false;
+                        // countedTile = false;
                         if(!countedTile) {
                             updateTileCount(tileGrid[row][col]->getValueType());
-                            countedTile = true;
-                            checkTimer = 20;
+                            // countedTile = true;
+                            checkTimer = 20;    //Don't lower this any more. It'll break the lose check. 
                         }
                     }
                 }
@@ -309,7 +314,6 @@ void ofApp::countTiles() {
         }
     }
 
-
 }
 
 void ofApp::updateTileCount(tileType type) {
@@ -317,13 +321,14 @@ void ofApp::updateTileCount(tileType type) {
         if (tileValueCounts[type] > 0) {
             tileValueCounts[type]--;
             if(int(type) > 1) {
-                sfx.play();
+                pointMult_sfx.play();
             }
-            pointsCounter *= (int) type;
+            currentPoints *= (int) type;
         }
-        cout << "Updating tile count for: " << type << " to: " << tileValueCounts[type] << endl;
-        cout << "------" << endl;
-        cout << "current Count " << endl;
+
+        // cout << "Updating tile count for: " << type << " to: " << tileValueCounts[type] << endl;
+        // cout << "------" << endl;
+        // cout << "current Count " << endl;
         for (auto it = tileValueCounts.begin(); it != tileValueCounts.end(); it++) {
             
             cout << it->first << " : " << it->second << endl;
@@ -355,3 +360,4 @@ bool ofApp::checkDefeat() {
     }
     return false;
 }
+
