@@ -391,8 +391,8 @@ class infoTile  {
             }
 
             //Time to finally write the text and draw the voltorb
-            // Draw the top part (point count)
             ofSetColor(ofColor::black);
+            // Draw the top part (point count)
             // font.drawString(topPart, position.x + width / 2 - font.stringWidth(topPart) / 2, position.y + height / 4);
             font.drawString(topPart, position.x + width / 2 - font.stringWidth(topPart) / 2, position.y + height * 2/5 - height * 1/18);
             font.drawString(bottomPart, position.x + width / 2 - font.stringWidth(bottomPart) / 2, position.y + height - 16);

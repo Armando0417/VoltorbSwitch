@@ -30,7 +30,7 @@ void ofApp::setup(){
     font.load("pokemon-ds-font.ttf", 40);
     titleFont.load("Silkscreen-Regular.ttf", 100);
     ost.setVolume(0.50);
-    ost.play();
+    // ost.play();
 
     currentPoints = 1; 
     pullPointsFromBank();
@@ -126,25 +126,32 @@ void ofApp::draw(){
 
     if (showRules) {
         ofSetColor(ofColor::white);
-        rules.draw(1200, 110, 650, 450);
-        font.drawString(to_string(currentLevel + 1), 1630, 170);
+        int widthRules = ofGetWidth() * 4/16;
+        int heightRules = ofGetHeight() * 4/10;
+        
+        int widthPoints = ofGetWidth() * 5.5/16;
+        int heightPoints = ofGetHeight() * 4/10;
 
-        points.draw(1200, 700, 650, 450);
+        rules.draw(ofGetWidth() * 11/16, ofGetHeight() * 1/10, widthRules, heightRules);
+        font.drawString(to_string(currentLevel + 1), ofGetWidth() * 13.6/16, ofGetHeight() * 1.6/10);
+
+
+        points.draw(ofGetWidth() * 10/16, ofGetHeight() * 5.5/10, widthPoints, heightPoints);
         ofSetColor(ofColor::black);
         string pointsStr = to_string(currentPoints);
         string storedPointsStr = to_string(storedPoints);
 
         // Calculate font size or adjust scaling based on the number of digits
         int maxLength = max(pointsStr.length(), storedPointsStr.length());
-        int adjustedFontSize = 100 - (maxLength * 10); // Decrease font size as digits increase
+        int adjustedFontSize = 85 - (maxLength * 10); // Decrease font size as digits increase
 
         // Load or scale font size dynamically
-        titleFont.load("Silkscreen-Regular.ttf", max(adjustedFontSize, 40)); // Ensure a minimum font size of 40
+        titleFont.load("Silkscreen-Regular.ttf", max(adjustedFontSize, 32)); // Ensure a minimum font size of 40
 
         // Center or adjust the position of the text
-        float xPosition = 1580 - (maxLength * 10); // Adjust X position for centering
-        titleFont.drawString(pointsStr, xPosition, 850);
-        titleFont.drawString(storedPointsStr, xPosition, 1100);
+        float xPosition = ofGetWidth() * 13.5/16 - (maxLength * 10); // Adjust X position for centering
+        titleFont.drawString(pointsStr, xPosition, ofGetHeight() * 6.7/10);
+        titleFont.drawString(storedPointsStr, xPosition,  ofGetHeight() * 8.7/10);
         ofSetColor(ofColor::white);
     } 
 
@@ -168,17 +175,19 @@ void ofApp::draw(){
 
     if (victory) {
         ofSetBackgroundColor(ofColor::green);
-        font.drawString("Victory! You've won!", ofGetWidth()* 3/4 - 50, 100);
+        font.drawString("Victory! You've won!", ofGetWidth()* 3/4 - 50, ofGetHeight() * 0.8/10);
+        font.drawString("Press space to continue!", ofGetWidth()* 1/4 - 50, ofGetHeight());
     }
     else if (defeat) {
         ofSetBackgroundColor(ofColor::red);
-        font.drawString("Defeat! You lost.", ofGetWidth() * 3/4 - 50, 100);
+        font.drawString("Defeat! You lost.", ofGetWidth() * 3/4 - 50, ofGetHeight() * 0.8/10);
+         font.drawString("Press space to restart!", ofGetWidth()* 1/4 - 50, ofGetHeight());
         pullPointsFromBank();
         storePointsInBank();
     }
     else if (gameFinished) {
         ofSetBackgroundColor(ofColor::white);
-        font.drawString("Game finished. Press space to restart.", ofGetWidth()* 3/4 - 50, 100);
+        font.drawString("Game finished. Press space to restart.", ofGetWidth()* 3/4 - 50, ofGetHeight());
         storePointsInBank();
     }
 
