@@ -32,9 +32,11 @@ class gameTile {
         tileType value; 
 
     // These are going to be the dimensions of the tile
-        int width = 150;
-        int height = 150;
-        
+        // int width = 150;
+        // int height = 150;
+        double width = ofGetWidth() /16;
+        double height = ofGetWidth() /16;
+
         
     // Boolean conditions to know information about the tile
         bool flipped;
@@ -79,7 +81,13 @@ class gameTile {
 
         ofPoint getPosition() {
             return position;
-        }        
+        }   
+        double getWidth() {
+            return width;
+        }     
+        double getHeight() {
+            return height;
+        }
 
         // This method is to assign the front image of the tile to the value that was assigned to it.
         void setValue(tileType _value) {
@@ -234,8 +242,10 @@ class infoTile  {
             int row_col[2];
             ofPoint position;
 
-            int width = 150;
-            int height = 150;
+        // int width = 150;
+        // int height = 150;
+        double width = ofGetWidth() /16;
+        double height = ofGetWidth() /16;
         
 
     // Here the information of the tile starts to change
@@ -277,7 +287,7 @@ class infoTile  {
             topPart = to_string(PointCount);
             bottomPart = to_string(BombCount);            
 
-            font.load("pokemon-ds-font.ttf", 45);
+            font.load("Silkscreen-Regular.ttf", 30);
             voltorbMini.load("Assets/TileImages/VoltorbMini.png");
             borderImage.load("Assets/TileImages/Border2.png");
 
@@ -306,11 +316,20 @@ class infoTile  {
                         }
                     }
                 }
-                // Update the pipe length and position for row marking
-                backgroundPipe.setWidth(position.x - tileGrid[myRowIndex][0]->getPosition().x);
-                backgroundPipe.setHeight(height / 5);
-                backgroundPipe.setPosition(position.x - backgroundPipe.getWidth() + 30, position.y + height / 2 - backgroundPipe.getHeight() / 2);
-            
+                // // Update the pipe length and position for row marking
+                // backgroundPipe.setWidth(position.x - tileGrid[myRowIndex][0]->getPosition().x);
+                // backgroundPipe.setHeight(height / 5);
+                // backgroundPipe.setPosition(position.x - backgroundPipe.getWidth() + 30, position.y + height / 2 - backgroundPipe.getHeight() / 2);
+
+                // Calculate the pipe width from the first to the last tile in the row
+                double startX = tileGrid[myRowIndex][0]->getPosition().x + tileGrid[myRowIndex][0]->getWidth()/2 ;
+                double endX = this->position.x;
+
+                backgroundPipe.setWidth(endX - startX);
+                backgroundPipe.setHeight(height / 7);
+                backgroundPipe.setPosition(startX, position.y + height / 2 - backgroundPipe.getHeight() / 2);
+
+
             } 
             
             else {
@@ -325,12 +344,26 @@ class infoTile  {
                     }
                 }
                 // Update the pipe length and position for column marking
-                backgroundPipe.setWidth(width / 5);
-                backgroundPipe.setHeight(position.y - tileGrid[0][myColIndex]->getPosition().y);
-                backgroundPipe.setPosition(position.x + width / 2 - backgroundPipe.getWidth() / 2, position.y - backgroundPipe.getHeight() + 30);
+                // backgroundPipe.setWidth(width / 5);
+                // backgroundPipe.setHeight(position.y - tileGrid[0][myColIndex]->getPosition().y);
+                // backgroundPipe.setPosition(position.x + width / 2 - backgroundPipe.getWidth() / 2, position.y - backgroundPipe.getHeight() + 30);
+
+                // Calculate the pipe height from the first to the last tile in the column
+                double startY = tileGrid[0][myColIndex]->getPosition().y + tileGrid[0][myColIndex]->getHeight()/2;
+                double endY = this->position.y;
+
+                backgroundPipe.setWidth(width / 7);
+                backgroundPipe.setHeight(endY - startY);
+                backgroundPipe.setPosition(position.x + width / 2 - backgroundPipe.getWidth() / 2, startY);
             }
-            topPart = to_string(PointCount);
-            bottomPart = to_string(BombCount);
+            if (PointCount < 10) {
+                topPart = "0" + to_string(PointCount);
+            }
+            else {
+                topPart = to_string(PointCount);
+            }
+            bottomPart = " " + to_string(BombCount);
+        
         }
             
     
@@ -338,42 +371,34 @@ class infoTile  {
         void draw() {
             ofSetColor(ofColor::white);
             borderImage.draw(position.x, position.y, width, height);
-            // ofRectangle rect1 = ofRectangle(position.x, position.y, width, height);
-            // ofDrawRectRounded(rect1, 8);
-            // cout << "X: " << position.x << " Y: " << position.y << endl;
             ofRectangle pipeBorder = ofRectangle(backgroundPipe.getX() - 10.5, backgroundPipe.getY() - 8.5, backgroundPipe.getWidth() + 21, backgroundPipe.getHeight() + 17.5);
             ofDrawRectangle(pipeBorder);
             ofSetColor(ofColor::darkMagenta);
-            ofRectangle rect2 = ofRectangle(position.x + 10.5, position.y + 10.5, width * 0.86, height * 0.86);
-            cout << "X2: " << position.x + 10.5 << " Y2: " << position.y + 10.5 << endl;
+            ofRectangle rect2 = ofRectangle(position.x + 5.5, position.y + 5.5, width * 0.86, height * 0.86);
             ofDrawRectRounded(rect2, 8);
             
             
-
             ofDrawRectangle(backgroundPipe);
 
             ofSetColor(ofColor::white);
 
-            ofSetLineWidth(11.5);
+            ofSetLineWidth(7);
             if(markRow) {
                 ofDrawLine(position.x, pipeBorder.getY() + 3.5, position.x + width, pipeBorder.getY() + 3.5);
             }
             else {
-                ofDrawLine(position.x, position.y + height/2 - 14.2, position.x + width, position.y + height/2 - 14.2);
+                ofDrawLine(position.x, position.y + height/2 - 10.2, position.x + width, position.y + height/2 - 10.2);
             }
 
             //Time to finally write the text and draw the voltorb
             // Draw the top part (point count)
             ofSetColor(ofColor::black);
             // font.drawString(topPart, position.x + width / 2 - font.stringWidth(topPart) / 2, position.y + height / 4);
-            font.drawString(topPart, position.x + 95, position.y + 50);
-
-            // Draw the bottom part (bomb count) and Voltorb mini image
-            // font.drawString(bottomPart, position.x + width / 2 - font.stringWidth(bottomPart) / 2, position.y + (3 * height) / 4);
-            font.drawString(bottomPart, position.x + 95, position.y + height - 16);
+            font.drawString(topPart, position.x + width / 2 - font.stringWidth(topPart) / 2, position.y + height * 2/5 - height * 1/18);
+            font.drawString(bottomPart, position.x + width / 2 - font.stringWidth(bottomPart) / 2, position.y + height - 16);
 
             ofSetColor(ofColor::white);
-            voltorbMini.draw(position.x + 5, position.y + 75, 66, 66);
+            voltorbMini.draw(position.x + 5, position.y + height / 2 - 5, width / 2 - 3, height / 2 - 3);
 
 
   

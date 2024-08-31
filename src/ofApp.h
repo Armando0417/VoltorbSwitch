@@ -33,7 +33,7 @@ class gameGrids {
 
 			int startX = ofGetWidth() / 20;
 			int startY = ofGetHeight() / 20;
-			int spacing = ofGetWidth() / 11;
+			int spacing = ofGetWidth() / 10.4;
 
 			for (int row = 0; row < rows; row++) { 
 				for (int col = 0; col < cols; col++) {
