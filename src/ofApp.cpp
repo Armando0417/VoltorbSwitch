@@ -2,7 +2,6 @@
 
 //TODO: FIX gameFinished
 
-
 //--------------------------------------------------------------
 void ofApp::setup(){
     ost.load("Sounds/music_intro.mp3");
@@ -30,7 +29,7 @@ void ofApp::setup(){
     font.load("pokemon-ds-font.ttf", 40);
     titleFont.load("Silkscreen-Regular.ttf", 100);
     ost.setVolume(0.50);
-    // ost.play();
+    ost.play();
 
     currentPoints = 1; 
     pullPointsFromBank();
@@ -40,6 +39,7 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::setupLevel() {
+    //TODO: Phase 3
     vector<vector<int>> level_1 
     = {
         {0, 0, 1, 3, 2},
@@ -65,7 +65,7 @@ void ofApp::setupLevel() {
         {1, 2, 3, 1, 2},
         {3, 1, 0, 0, 1}
     };
-
+    //TODO: Phase 3
     levelList.clear();
     gameGrids lvl1 = gameGrids(level_1, voltorb_explosion, success_animations);
     levelList.push_back(lvl1);
@@ -84,12 +84,22 @@ void ofApp::setupLevel() {
         }
     }
 
+
+    //TODO: Phase 2
     victory = false;
     gameFinished = false;
     defeat = false;
 
+
     tileGrid = levelList[currentLevel].tileGrid;
     infoTileGrid = levelList[currentLevel].infoTileGrid;
+    
+    //TODO: Phase 2
+        if (tileGrid.size() == 0) {
+            gameFinished = true;
+        }
+    
+    
     countTiles();
 }
 
@@ -103,7 +113,7 @@ void ofApp::update(){
             }
         }
     }
-    
+    //TODO: Phase 2
     if (checkTimer > 0) {
         checkTimer--;
         if (checkTimer == 0) {
@@ -126,13 +136,13 @@ void ofApp::draw(){
 
     if (showRules) {
         ofSetColor(ofColor::white);
-        int widthRules = ofGetWidth() * 4/16;
+        int widthRules = ofGetWidth() * 5/16;
         int heightRules = ofGetHeight() * 4/10;
         
         int widthPoints = ofGetWidth() * 5.5/16;
         int heightPoints = ofGetHeight() * 4/10;
 
-        rules.draw(ofGetWidth() * 11/16, ofGetHeight() * 1/10, widthRules, heightRules);
+        rules.draw(ofGetWidth() * 10.5/16, ofGetHeight() * 1/10, widthRules, heightRules);
         font.drawString(to_string(currentLevel + 1), ofGetWidth() * 13.6/16, ofGetHeight() * 1.6/10);
 
 
@@ -172,7 +182,7 @@ void ofApp::draw(){
         }
     }
 
-
+    //TODO: Phase 2
     if (victory) {
         ofSetBackgroundColor(ofColor::green);
         font.drawString("Victory! You've won!", ofGetWidth()* 3/4 - 50, ofGetHeight() * 0.8/10);
@@ -182,6 +192,7 @@ void ofApp::draw(){
         ofSetBackgroundColor(ofColor::red);
         font.drawString("Defeat! You lost.", ofGetWidth() * 3/4 - 50, ofGetHeight() * 0.8/10);
          font.drawString("Press space to restart!", ofGetWidth()* 1/4 - 50, ofGetHeight());
+        //TODO: Phase 1
         pullPointsFromBank();
         storePointsInBank();
     }
@@ -197,6 +208,7 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key){
     if (victory && key == ' ') {
         victory = false;
+        //TODO: Phase 3
         if (currentLevel < levelList.size()) {
            currentLevel++; 
         }
@@ -212,6 +224,7 @@ void ofApp::keyPressed(int key){
     }
     if (defeat && key == ' ') {
         defeat = false;
+        //TODO: Phase 3
         currentLevel = 0;
         currentPoints = 1; 
         tileGrid.clear();
@@ -220,11 +233,11 @@ void ofApp::keyPressed(int key){
     }
 
     if (gameFinished && key == ' ') {
-        gameFinished = false;
-        tileGrid.clear();
-        infoTileGrid.clear();
-        currentLevel = 0;
-        setupLevel();
+        // gameFinished = false;
+        // tileGrid.clear();
+        // infoTileGrid.clear();
+        // currentLevel = 0;
+        // setupLevel();
     }
 
     if (key == 'r') {
@@ -268,6 +281,7 @@ void ofApp::mousePressed(int x, int y, int button){
                         if(!countedTile) {
                             updateTileCount(tileGrid[row][col]->getValueType());
                             // countedTile = true;
+                            //TODO: Phase 2
                             checkTimer = 20;    //Don't lower this any more. It'll break the lose check. 
                         }
                     }
@@ -335,9 +349,6 @@ void ofApp::updateTileCount(tileType type) {
             currentPoints *= (int) type;
         }
 
-        // cout << "Updating tile count for: " << type << " to: " << tileValueCounts[type] << endl;
-        // cout << "------" << endl;
-        // cout << "current Count " << endl;
         for (auto it = tileValueCounts.begin(); it != tileValueCounts.end(); it++) {
             
             cout << it->first << " : " << it->second << endl;
@@ -345,6 +356,8 @@ void ofApp::updateTileCount(tileType type) {
     }
 }
 
+
+//TODO: Phase 2
 bool ofApp::checkVictory() {
     // Win when there are no more Two's or Three's in the grid
     if (tileValueCounts[tileType::TWO] == 0 && tileValueCounts[tileType::THREE] == 0) {
@@ -355,6 +368,7 @@ bool ofApp::checkVictory() {
     }
 }
 
+//TODO: Phase 2
 bool ofApp::checkDefeat() {
     for (unsigned int i = 0; i < tileGrid.size(); i++) {
         for (unsigned int j = 0; j < tileGrid[i].size(); j++) {

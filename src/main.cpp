@@ -39,9 +39,9 @@ int main( ){
     */  
 
 
-	ofSetupOpenGL(1920, 1280,OF_FULLSCREEN);    // <-------- setup the GL context
+	// ofSetupOpenGL(1920, 1280,OF_FULLSCREEN);    // <-------- setup the GL context
     	// ofSetupOpenGL(1280, 800,OF_WINDOW);    // <-------- setup the GL context
-    	// ofSetupOpenGL(1440, 900,OF_WINDOW);    // <-------- setup the GL context
+    	ofSetupOpenGL(1440, 900,OF_WINDOW);    // <-------- setup the GL context
 
 
 

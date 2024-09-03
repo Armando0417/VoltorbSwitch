@@ -23,6 +23,7 @@ class gameTile {
 
     private:
     // This are going to be the row and column of the tile in the grid
+    //TODO: phase 1: (reverse the values)
         int row_col[2]; // Note that the first index (0) is the row, and the second index (1) is the column
     
     // This is going to be the position of the tile on the screen (the X and Y coordinates for openframeworks to draw it in)
@@ -66,6 +67,7 @@ class gameTile {
     public:
     // This is the constructor for the tile
         gameTile(int x_pos, int y_pos, int row, int col) {
+            //TODO: phase 1: (reverse the values)
             row_col[0] = row;
             row_col[1] = col;
             position = ofPoint(x_pos, y_pos);
@@ -269,6 +271,10 @@ class infoTile  {
             bool markCol;
             bool markRow;
 
+        // This is the actual color of the tile
+        //TODO: Phase 3
+            ofColor TileColor = ofColor(255, 255, 255);
+
         // This is for the elongated rectangle
             ofRectangle backgroundPipe;
             ofColor backgroundColor = ofColor(255, 255, 255);
@@ -294,7 +300,7 @@ class infoTile  {
         }
         
         void setColor(ofColor color) {
-            backgroundColor = color;
+            TileColor  = color;
         }
 
         // These are used to set the boolean variables  to true
@@ -373,7 +379,8 @@ class infoTile  {
             borderImage.draw(position.x, position.y, width, height);
             ofRectangle pipeBorder = ofRectangle(backgroundPipe.getX() - 10.5, backgroundPipe.getY() - 8.5, backgroundPipe.getWidth() + 21, backgroundPipe.getHeight() + 17.5);
             ofDrawRectangle(pipeBorder);
-            ofSetColor(ofColor::darkMagenta);
+            //TODO: Phase 3
+            ofSetColor(TileColor);
             ofRectangle rect2 = ofRectangle(position.x + 5.5, position.y + 5.5, width * 0.86, height * 0.86);
             ofDrawRectRounded(rect2, 8);
             
@@ -400,46 +407,7 @@ class infoTile  {
             ofSetColor(ofColor::white);
             voltorbMini.draw(position.x + 5, position.y + height / 2 - 5, width / 2 - 3, height / 2 - 3);
 
+        }
 
-  
-            // // Draw the white background
-            // ofSetColor(ofColor::white);
-            // // Adjust the width and height to cover both the infoTile and the pipe
-            // if (markRow) {
-            //     // For row marking
-            //     ofDrawRectangle(position.x - 5, position.y - 5, backgroundPipe.getWidth() + width + 10, height + 10);
-            // } 
-            // else {
-            //     // For column marking
-            //     ofDrawRectangle(position.x - 5, position.y - 5, width * 1/5 + 10, backgroundPipe.getHeight() + height + 10);
-            // }
-
-
-
-            // // Draw the background pipe
-            // ofSetColor(backgroundColor);
-            // ofDrawRectRounded(backgroundPipe, 8);
-
-            // // Draw the infoTile itself
-            // ofSetColor(backgroundColor);
-            // ofRectangle rect = ofRectangle(position.x, position.y, width, height);
-            // ofDrawRectRounded(rect, 8);
-            // ofSetColor(ofColor::black); 
-            // ofSetLineWidth(10);
-            // ofDrawLine(position.x, position.y + height / 2, position.x + width, position.y + height / 2); // Line across the middle
-            
-            // font.drawString(topPart, position.x + 95, position.y + 60);
-            // font.drawString(bottomPart, position.x + 95, position.y + height - 16);
-
-            // ofSetColor(ofColor::white);
-            // voltorbMini.draw(position.x + 2.5, position.y + 81.5, 66, 66);
-            // ofDrawBitmapString("Row: " + to_string(row_col[0]) + " Col: " + to_string(row_col[1]), position.x, position.y );
-
-            }
-
-        // void drawBeam() {
-        //     ofSetColor(ofColor::lightGoldenRodYellow);
-        //     ofDrawRectangle(backgroundPipe);
-        //     ofSetColor(ofColor::white);
-        // }
+    
 };

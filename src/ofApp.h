@@ -49,14 +49,47 @@ class gameGrids {
 					if (row == gridSize || col == gridSize) {
 						infoTileGrid[row][col] = make_shared<infoTile>(currX, currY, row, col);
 						if (row == gridSize) {
-							cout << "Marking row: " << row << endl;
 							infoTileGrid[row][col]->markColOn();
+						//TODO: PHASE 3
+							if (col == 0) {
+								infoTileGrid[row][col]->setColor(ofColor(231,115,82));
+							}
+							else if (col == 1) {
+								infoTileGrid[row][col]->setColor(ofColor(66,173,66));
+							}
+							else if (col == 2) {
+								infoTileGrid[row][col]->setColor(ofColor(239,165,57));
+							}
+							else if (col == 3) {
+								infoTileGrid[row][col]->setColor(ofColor(49,148,255));
+							}
+							else if (col == 4) {
+								infoTileGrid[row][col]->setColor(ofColor(198,99,231));
+							}
 						}
 						else {
 							cout << "Marking col: " << col << endl;
 							infoTileGrid[row][col]->markRowOn();
+						//TODO: PHASE 3
+							if (row == 0) {
+								infoTileGrid[row][col]->setColor(ofColor(231,115,82));
+							}
+							else if (row == 1) {
+								infoTileGrid[row][col]->setColor(ofColor(66,173,66));
+							}
+							else if (row == 2) {
+								infoTileGrid[row][col]->setColor(ofColor(239,165,57));
+							}
+							else if (row == 3) {
+								infoTileGrid[row][col]->setColor(ofColor(49,148,255));
+							}
+							else if (row == 4) {
+								infoTileGrid[row][col]->setColor(ofColor(198,99,231));
+							}
 						}
-							infoTileGrid[row][col]->countPoints(tileGrid);
+						infoTileGrid[row][col]->countPoints(tileGrid);
+			
+
 					}
 
 					else {
@@ -83,14 +116,7 @@ class gameGrids {
 				}
 			}
 		}
-};
 
-enum infoTileColors {
-	RED = 0,
-	GREEN = 1,
-	ORANGE = 2,
-	BLUE = 3, 
-	PURPLE = 4
 };
 
 class ofApp : public ofBaseApp{
@@ -116,8 +142,15 @@ class ofApp : public ofBaseApp{
 
 	// Game Methods
 		void setupLevel();
-		bool checkDefeat();
 		
+	//TODO: Phase 2
+		bool checkDefeat();
+		bool checkVictory();
+		bool gameFinished;
+		bool victory;
+		bool defeat;
+
+
 		void pullPointsFromBank(){
 			ifstream pointBank("pointBank.txt");
 			if (pointBank.is_open()) {
@@ -140,6 +173,7 @@ class ofApp : public ofBaseApp{
 
 	// These are going to be for the levels themselves. Each GameGrid contains a 5x5 grid of GameTiles & 1 InfoTile per row AND column.
 	// FIXME: CHANGE TO OBJECTS
+	//TODO: Phase 3
 		vector<gameGrids> levelList;
 		vector<vector<shared_ptr<gameTile>>> tileGrid; 
 		vector<vector<shared_ptr<infoTile>>> infoTileGrid;
@@ -180,14 +214,10 @@ class ofApp : public ofBaseApp{
 	void countTiles();
 	void updateTileCount(tileType type);
 	
-	bool checkVictory();
-
-	bool victory;
-	bool gameFinished;
-	bool defeat;
-
 	bool countedTile = false;
 
+
+	//TODO: Phase 2
 	int checkTimer = 0;
 
 
@@ -196,6 +226,7 @@ class ofApp : public ofBaseApp{
 	int storedPoints = 0;
 
 
+	//TODO: Phase 2
 	//Boolean to make sure enough time passes before the next tile can be flipped
 	bool canPlay = true;
 
