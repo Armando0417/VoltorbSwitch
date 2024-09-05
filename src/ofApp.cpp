@@ -42,7 +42,7 @@ void ofApp::setupLevel() {
     //TODO: Phase 3
     vector<vector<int>> level_1 
     = {
-        {0, 0, 1, 3, 2},
+        {0, 3, 1, 3, 2},
         {0, 0, 0, 0, 2},
         {0, 2, 1, 3, 0},
         {0, 0, 1, 3, 0},
@@ -128,13 +128,19 @@ void ofApp::update(){
             }
         }
     }
+
+    if(currentLevel >= 3) {
+        gameFinished = true;
+        // storePointsInBank(); 
+
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofSetBackgroundColor(41,165,107,255);
 
-    if (showRules) {
+    if (showRules && !gameFinished) {
         ofSetColor(ofColor::white);
         int widthRules = ofGetWidth() * 5/16;
         int heightRules = ofGetHeight() * 4/10;
@@ -143,7 +149,7 @@ void ofApp::draw(){
         int heightPoints = ofGetHeight() * 4/10;
 
         rules.draw(ofGetWidth() * 10.5/16, ofGetHeight() * 1/10, widthRules, heightRules);
-        font.drawString(to_string(currentLevel + 1), ofGetWidth() * 13.6/16, ofGetHeight() * 1.6/10);
+        font.drawString(to_string(currentLevel + 1), ofGetWidth() * 13.7/16, ofGetHeight() * 1.6/10);
 
 
         points.draw(ofGetWidth() * 10/16, ofGetHeight() * 5.5/10, widthPoints, heightPoints);
@@ -197,10 +203,13 @@ void ofApp::draw(){
         storePointsInBank();
     }
     else if (gameFinished) {
-        ofSetBackgroundColor(ofColor::white);
-        font.drawString("Game finished. Press space to restart.", ofGetWidth()* 3/4 - 50, ofGetHeight());
-        storePointsInBank();
+        ofSetBackgroundColor(ofColor::black);
+        font.drawString("Congratulations! Game Finished", ofGetWidth()/2 - 50, ofGetHeight() / 2);
+        font.drawString("Press 'Esc' to exit", ofGetWidth()/2 - 50, ofGetHeight()/2 + 40);
+        //storePointsInBank();
     }
+
+    
 
 }
 
