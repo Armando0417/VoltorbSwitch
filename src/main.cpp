@@ -1,7 +1,7 @@
 #include "ofMain.h"
 #include "ofApp.h"
 
-
+// TODO: DELETE
 class ofRedirect {
 public:
     ofRedirect(const std::string &filename) {
