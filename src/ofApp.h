@@ -3,6 +3,12 @@
 #include "ofMain.h"
 #include "Tiles.h"
 
+/*
+	Author's Note:
+		This class is just here to make the code a lot easier to read.
+		This class is for the game grid. Basically, the game grid will contain the 
+		tile grids, and info tile grid. In addition, it has the animations to assign them to the tiles upon creating them.
+*/
 class gameGrids {
 
 	public:
@@ -12,14 +18,16 @@ class gameGrids {
 		vector<ofImage> success_animations;
 
 		
+		// The class only has a constructor in reality. Nothing else is needed
 		gameGrids(vector<vector<int>>& currentLevel, vector<ofImage>& _voltorb_explosion, vector<ofImage>& _success_animations) {
 			int gridSize = 5;
-			int rows = gridSize + 1;
-			int cols = gridSize + 1;
+			int rows = gridSize + 1; // offset by 1 to accommodate the info tiles
+			int cols = gridSize + 1; // offset by 1 to accommodate the info tiles
 
 			voltorb_explosion = _voltorb_explosion;
 			success_animations = _success_animations;
 
+			// here I'll resize the vector to that size. Since there's no reason to have the vectors occupy additional space
 			tileGrid.resize(rows); 
 			infoTileGrid.resize(rows);
 			for (int i = 0; i < rows; i++) {
@@ -27,29 +35,29 @@ class gameGrids {
 				infoTileGrid[i].resize(cols);
 			}
 
-			// int startX = 100;
-			// int startY = 100;
-			// int spacing = (150 + 30);
-
+			//here is to start drawing the tile grids.
 			int startX = ofGetWidth() / 20;
 			int startY = ofGetHeight() / 20;
 			int spacing = ofGetWidth() / 10.4;
 
 			for (int row = 0; row < rows; row++) { 
 				for (int col = 0; col < cols; col++) {
+					// This is for the offset of the tiles.
+						int currX = col * spacing + startX;
+						int currY = row * spacing + startY;
 
-					int currX = col * spacing + startX;
-					int currY = row * spacing + startY;
-
-
+					// If i reach the last space, then i break since there's no tile going into that last spot
 					if (row == gridSize && col == gridSize) {
 						break;
 					}
 
+					// If i reach the edges, that means a infoTile goes there.
 					if (row == gridSize || col == gridSize) {
 						infoTileGrid[row][col] = make_shared<infoTile>(currX, currY, row, col);
+						
 						if (row == gridSize) {
-							infoTileGrid[row][col]->markColOn();
+							infoTileGrid[row][col]->markColOn(); // this is to know if it should count the columns
+				
 						//TODO: PHASE 3
 							if (col == 0) {
 								infoTileGrid[row][col]->setColor(ofColor(231,115,82));
@@ -67,6 +75,7 @@ class gameGrids {
 								infoTileGrid[row][col]->setColor(ofColor(198,99,231));
 							}
 						}
+						// else we count the rows
 						else {
 							cout << "Marking col: " << col << endl;
 							infoTileGrid[row][col]->markRowOn();
@@ -87,11 +96,13 @@ class gameGrids {
 								infoTileGrid[row][col]->setColor(ofColor(198,99,231));
 							}
 						}
+						//Make the infoTile count up the points in its respective column/row
 						infoTileGrid[row][col]->countPoints(tileGrid);
 			
 
 					}
-
+					// if it's not a info tile, then it's a gameTile
+					// So we create a gametile and assign values based on the currentLevel to be loaded
 					else {
 						tileGrid[row][col] = make_shared<gameTile>(currX, currY, row, col);
 						if (currentLevel[row][col] == 0) {
@@ -175,8 +186,8 @@ class ofApp : public ofBaseApp{
 	// FIXME: CHANGE TO OBJECTS
 	//TODO: Phase 3
 		vector<gameGrids> levelList;
-		vector<vector<shared_ptr<gameTile>>> tileGrid; 
-		vector<vector<shared_ptr<infoTile>>> infoTileGrid;
+		vector<vector<shared_ptr<gameTile>>> currentTileGrid; 
+		vector<vector<shared_ptr<infoTile>>> currentInfoTileGrid;
 
 	//Index for the current level in the levelList
 		unsigned int currentLevel = 0;
@@ -211,24 +222,21 @@ class ofApp : public ofBaseApp{
 		ofImage points;
 
 
-	void countTiles();
-	void updateTileCount(tileType type);
-	
-	bool countedTile = false;
-
+		void countTiles();
+		void updateTileCount(tileType type);
 
 	//TODO: Phase 2
-	int checkTimer = 0;
+		int checkTimer = 0;
 
 
-
-	int currentPoints = 1;
-	int storedPoints = 0;
+	// Variables to keep track of current score and stored score
+		int currentPoints = 1;
+		int storedPoints = 0;
 
 
 	//TODO: Phase 2
 	//Boolean to make sure enough time passes before the next tile can be flipped
-	bool canPlay = true;
+		bool canPlay = true;
 
 
 };

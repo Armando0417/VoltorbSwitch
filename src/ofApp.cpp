@@ -1,44 +1,68 @@
 #include "ofApp.h"
 
-//TODO: FIX gameFinished
+/*
+    Author's Note:
+        Welcome to Voltorb Switch (not voltorb flip). A totally not rip-off of the casino game
+        from Pokemon HeartGold-SoulSilver. This project may seem a lot more daunting than the PA0, but don't worry
+        The author is here to help!
+
+        I wrote all the comments with the idea that you at least ran the program first and played a bit with the game. 
+        I tried to make it as fun as possible so good luck!
+
+        ps. don't hate the author if this project is too hard, it's fault of the staff, not the author. 
+*/
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ost.load("Sounds/music_intro.mp3");
-    ost.setLoop(true);
-    pointMult_sfx.load("Sounds/sfx/pointIncreaseSfx.mp3");
-    pointsTallied_sfx.load("Sounds/sfx/pointsTallied.mp3");
-    levelBeat_sfx.load("Sounds/sfx/levelBeat.mp3");
-    rules.load("Assets/rules.png");
-    points.load("Assets/points.png");
+/*
+    Alright, this part is basically running at the start of the program. So it only runs 1 time.
+    In that time it's basically just allocating the necessary files and data that it will use throughout the program. 
+*/
+
+    ost.load("Sounds/music_intro.mp3"); // Loading the ost file to be played later
+    ost.setLoop(true); // making sure the song never ends
+    pointMult_sfx.load("Sounds/sfx/pointIncreaseSfx.mp3"); // this is the sound file when the tile clicked increments the score
+    pointsTallied_sfx.load("Sounds/sfx/pointsTallied.mp3"); // sound file for when a level is cleared and points are added to the 'pointBank'
+    levelBeat_sfx.load("Sounds/sfx/levelBeat.mp3"); // this is the sound file for when the level is cleared
+    rules.load("Assets/rules.png"); // this is the image for the rules
+    points.load("Assets/points.png"); // this is the image for the points
         
+    // This for-loop is just to make the loading of the individual frames of animations easier to load instead of having 8 lines of code of each frame
     for (int i = 0; i < 9; i++) { 
         ofImage voltorbImage = ofImage();
         voltorbImage.load("Assets/Animations/explode_frames/explode_" + ofToString(i) + ".png");
         voltorb_explosion.push_back(voltorbImage);
     }
-
+    // same as above but with the animation when you flip a tile
     for (int i = 0; i < 4; i++) { 
         ofImage successImage = ofImage();
         successImage.load("Assets/Animations/success_frames/success_" + ofToString(i) + ".png");
         success_animations.push_back(successImage);
     }
+    
 
-    setupLevel();
+    setupLevel();    // This method is one of the most important ones. It basically sets up the current level creating the tiles and grid.
 
-    font.load("pokemon-ds-font.ttf", 40);
+
+    font.load("pokemon-ds-font.ttf", 40); 
     titleFont.load("Silkscreen-Regular.ttf", 100);
-    ost.setVolume(0.50);
-    ost.play();
+    
+    ost.setVolume(0.50); // to not make the song too loud
+    ost.play(); // this is to make the song play. 
 
-    currentPoints = 1; 
-    pullPointsFromBank();
-    checkTimer = 15;
+    currentPoints = 1; // This is the current points. Since they work by being multiplied, then it's better to start with 1 
+
+    // TODO: points phase
+    pullPointsFromBank(); 
+    
+    
+    checkTimer = 15; // FIXME: Idk if to keep or not
 
 }
 
 //--------------------------------------------------------------
 void ofApp::setupLevel() {
+    // This will set up the current grid (notice that the grid is just a 5x5 matrix)
     //TODO: Phase 3
     vector<vector<int>> level_1 
     = {
@@ -65,6 +89,8 @@ void ofApp::setupLevel() {
         {1, 2, 3, 1, 2},
         {3, 1, 0, 0, 1}
     };
+
+
     //TODO: Phase 3
     levelList.clear();
     gameGrids lvl1 = gameGrids(level_1, voltorb_explosion, success_animations);
@@ -74,6 +100,7 @@ void ofApp::setupLevel() {
     gameGrids lvl3 = gameGrids(level_3, voltorb_explosion, success_animations);
     levelList.push_back(lvl3);
 
+    // This is to reset all the tiles to be flipped off.
     for (auto& grid : levelList) {
         for (auto& row : grid.tileGrid) {
             for (auto& tile : row) {
@@ -91,22 +118,26 @@ void ofApp::setupLevel() {
     defeat = false;
 
 
-    tileGrid = levelList[currentLevel].tileGrid;
-    infoTileGrid = levelList[currentLevel].infoTileGrid;
+    // This is to assign the current grid to be drawn, processed and of course, play.
+    currentTileGrid = levelList[currentLevel].tileGrid;
+    currentInfoTileGrid = levelList[currentLevel].infoTileGrid;
     
     //TODO: Phase 2
-        if (tileGrid.size() == 0) {
+        if (currentTileGrid.size() == 0) {
             gameFinished = true;
         }
     
-    
+    // TODO: idk if this should be here or not
     countTiles();
 }
 
 //--------------------------------------------------------------
+
+// The update method for the game. Update + draw methods are the core loop of the game.
 void ofApp::update(){
+    // If you haven't lost, or haven't won, then keep updating the tiles to keep checking which have been flipped.
     if (!victory && !defeat) {
-    for (auto& row : tileGrid) {
+    for (auto& row : currentTileGrid) {
         for (auto& tile : row) {
             if (tile) {
                 tile->update();
@@ -129,17 +160,18 @@ void ofApp::update(){
         }
     }
 
+    //TODO: levels
     if(currentLevel >= 3) {
         gameFinished = true;
-        // storePointsInBank(); 
-
     }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofSetBackgroundColor(41,165,107,255);
+    
+    ofSetBackgroundColor(41,165,107,255); // This is the green background color.
 
+    // TODO: Remove the gameFinished condition (Phase 3)
     if (showRules && !gameFinished) {
         ofSetColor(ofColor::white);
         int widthRules = ofGetWidth() * 5/16;
@@ -149,7 +181,7 @@ void ofApp::draw(){
         int heightPoints = ofGetHeight() * 4/10;
 
         rules.draw(ofGetWidth() * 10.5/16, ofGetHeight() * 1/10, widthRules, heightRules);
-        font.drawString(to_string(currentLevel + 1), ofGetWidth() * 13.7/16, ofGetHeight() * 1.6/10);
+        font.drawString(to_string(currentLevel + 1), ofGetWidth() * 13.8/16, ofGetHeight() * 1.6/10);
 
 
         points.draw(ofGetWidth() * 10/16, ofGetHeight() * 5.5/10, widthPoints, heightPoints);
@@ -159,31 +191,33 @@ void ofApp::draw(){
 
         // Calculate font size or adjust scaling based on the number of digits
         int maxLength = max(pointsStr.length(), storedPointsStr.length());
-        int adjustedFontSize = 85 - (maxLength * 10); // Decrease font size as digits increase
+        int adjustedFontSize = 85 - (maxLength * 10);
 
         // Load or scale font size dynamically
-        titleFont.load("Silkscreen-Regular.ttf", max(adjustedFontSize, 32)); // Ensure a minimum font size of 40
+        titleFont.load("Silkscreen-Regular.ttf", max(adjustedFontSize, 32)); 
 
         // Center or adjust the position of the text
-        float xPosition = ofGetWidth() * 13.5/16 - (maxLength * 10); // Adjust X position for centering
+        float xPosition = ofGetWidth() * 13.5/16 - (maxLength * 10);
         titleFont.drawString(pointsStr, xPosition, ofGetHeight() * 6.7/10);
         titleFont.drawString(storedPointsStr, xPosition,  ofGetHeight() * 8.7/10);
         ofSetColor(ofColor::white);
     } 
 
-
-    for (unsigned int row = 0; row < tileGrid.size(); row++) {
-        for (unsigned int col = 0; col < tileGrid[row].size(); col++) {
-            if (infoTileGrid[row][col]) {
-                infoTileGrid[row][col]->draw();
+    //For loop to draw the infoTiles
+    for (unsigned int row = 0; row < currentTileGrid.size(); row++) {
+        for (unsigned int col = 0; col < currentTileGrid[row].size(); col++) {
+            if (currentInfoTileGrid[row][col]) {
+                currentInfoTileGrid[row][col]->draw();
             }
         }
     }
 
-    for (unsigned int row = 0; row < tileGrid.size(); row++) {
-        for (unsigned int col = 0; col < tileGrid[row].size(); col++) {
-            if (tileGrid[row][col]) {
-                tileGrid[row][col]->draw();
+
+    //For loop to draw the gameTiles (it's below the info tiles so the background pipe the infotile has gets drawn behind the gameTile)
+    for (unsigned int row = 0; row < currentTileGrid.size(); row++) {
+        for (unsigned int col = 0; col < currentTileGrid[row].size(); col++) {
+            if (currentTileGrid[row][col]) {
+                currentTileGrid[row][col]->draw();
             }
         }
     }
@@ -202,11 +236,11 @@ void ofApp::draw(){
         pullPointsFromBank();
         storePointsInBank();
     }
+    //TODO: Phase 3
     else if (gameFinished) {
         ofSetBackgroundColor(ofColor::black);
         font.drawString("Congratulations! Game Finished", ofGetWidth()/2 - 50, ofGetHeight() / 2);
         font.drawString("Press 'Esc' to exit", ofGetWidth()/2 - 50, ofGetHeight()/2 + 40);
-        //storePointsInBank();
     }
 
     
@@ -215,6 +249,7 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    //TODO: Remove win conditions
     if (victory && key == ' ') {
         victory = false;
         //TODO: Phase 3
@@ -224,31 +259,26 @@ void ofApp::keyPressed(int key){
         else {
             gameFinished = true;
         }
-        tileGrid.clear();
-        infoTileGrid.clear();
+        currentTileGrid.clear();
+        currentInfoTileGrid.clear();
         setupLevel();
         storePointsInBank();
         currentPoints = 1;
         pointsTallied_sfx.play();
     }
+
+    //TODO: Remove the lose conditions
     if (defeat && key == ' ') {
         defeat = false;
         //TODO: Phase 3
         currentLevel = 0;
         currentPoints = 1; 
-        tileGrid.clear();
-        infoTileGrid.clear();
+        currentTileGrid.clear();
+        currentInfoTileGrid.clear();
         setupLevel();
     }
 
-    if (gameFinished && key == ' ') {
-        // gameFinished = false;
-        // tileGrid.clear();
-        // infoTileGrid.clear();
-        // currentLevel = 0;
-        // setupLevel();
-    }
-
+    // This is in case you want to toggle the points and rules off to only look at the grid
     if (key == 'r') {
         showRules = !showRules;
     }
@@ -261,11 +291,11 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-
-    for (unsigned int row = 0; row < tileGrid.size(); row++) {
-        for (unsigned int col = 0; col < tileGrid[row].size(); col++) {
-            if (tileGrid[row][col]) {
-                tileGrid[row][col]->isHovering(x, y);
+    //Just for hovering purposes
+    for (unsigned int row = 0; row < currentTileGrid.size(); row++) {
+        for (unsigned int col = 0; col < currentTileGrid[row].size(); col++) {
+            if (currentTileGrid[row][col]) {
+                currentTileGrid[row][col]->isHovering(x, y);
             }
         }
     }
@@ -278,21 +308,17 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-    for (unsigned int row = 0; row < tileGrid.size(); row++) {
-        for (unsigned int col = 0; col < tileGrid[row].size(); col++) {
-            if (tileGrid[row][col]) {
-                
-                if(tileGrid[row][col]->mouseHovering(x, y) && button == OF_MOUSE_BUTTON_1 && canPlay) {
-                    if (!tileGrid[row][col]->isFlipped()) {
-                        canPlay = false;           
-                        tileGrid[row][col]->startFlip();
-                        // countedTile = false;
-                        if(!countedTile) {
-                            updateTileCount(tileGrid[row][col]->getValueType());
-                            // countedTile = true;
-                            //TODO: Phase 2
-                            checkTimer = 20;    //Don't lower this any more. It'll break the lose check. 
-                        }
+    for (unsigned int row = 0; row < currentTileGrid.size(); row++) {
+        for (unsigned int col = 0; col < currentTileGrid[row].size(); col++) {
+            if (currentTileGrid[row][col]) {
+                //TODO: Remove the "canPlay" bool in the if()
+                if(currentTileGrid[row][col]->mouseHovering(x, y) && button == OF_MOUSE_BUTTON_1 && canPlay) {
+                    if (!currentTileGrid[row][col]->isFlipped()) {
+                        canPlay = false;     //TODO: remove the canPlay      
+                        currentTileGrid[row][col]->startFlip();
+                        updateTileCount(currentTileGrid[row][col]->getValueType());
+                        //TODO: Phase 2
+                        checkTimer = 20;    //Don't lower this any more. It'll break the game. 
                     }
                 }
 
@@ -332,36 +358,50 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }
 
+/*
+    Author's note:
+        - This method might be a bit complicated but fear not.
+        It uses something you won't cover in this class but you don't have to worry about that
+*/
 void ofApp::countTiles() {
+    /*
+        Imagine a vector where the index is the tileType, and the value is just to keep count of each tile type
+        In other words, let's say there's 3 bombs in the entire grid...
+        well the tileValueCounts at index tileType::VOLTORB ( sou tileValueCounts[tileType::VOLTORB]) 
+        will be equal to 3.
+
+        This does the same for all 4 tileTypes
+    */
+
     tileValueCounts[tileType::VOLTORB] = 0;
     tileValueCounts[tileType::ONE] = 0;
     tileValueCounts[tileType::TWO] = 0;
     tileValueCounts[tileType::THREE] = 0;
 
-    for(unsigned int i = 0; i < tileGrid.size(); i++) {
-        for(unsigned int j = 0; j < tileGrid[i].size(); j++) {
-            if(tileGrid[i][j]) {
-                tileValueCounts[tileGrid[i][j]->getValueType()]++;
+    // This is how the code runs through the tileGrid to count all the tileTypes 
+    for(unsigned int i = 0; i < currentTileGrid.size(); i++) {
+        for(unsigned int j = 0; j < currentTileGrid[i].size(); j++) {
+            if(currentTileGrid[i][j]) {
+                tileValueCounts[currentTileGrid[i][j]->getValueType()]++;
             }
         }
     }
-
 }
 
 void ofApp::updateTileCount(tileType type) {
+    /*
+        Author's note:
+            - This method is to make the count of each tileType go down after you press a tile.
+    */
     if(tileValueCounts.find(type) != tileValueCounts.end()) {
-        if (tileValueCounts[type] > 0) {
+        if (tileValueCounts[type] > 0) { // to not overshoot into the negatives
             tileValueCounts[type]--;
             if(int(type) > 1) {
                 pointMult_sfx.play();
             }
-            currentPoints *= (int) type;
+            currentPoints *= (int) type; //multiply the score
         }
 
-        for (auto it = tileValueCounts.begin(); it != tileValueCounts.end(); it++) {
-            
-            cout << it->first << " : " << it->second << endl;
-        }
     }
 }
 
@@ -379,11 +419,11 @@ bool ofApp::checkVictory() {
 
 //TODO: Phase 2
 bool ofApp::checkDefeat() {
-    for (unsigned int i = 0; i < tileGrid.size(); i++) {
-        for (unsigned int j = 0; j < tileGrid[i].size(); j++) {
-            if (tileGrid[i][j]) {
-                if (tileGrid[i][j]->getValue() == tileType::VOLTORB) {
-                    if (tileGrid[i][j]->isFlipped()) {
+    for (unsigned int i = 0; i < currentTileGrid.size(); i++) {
+        for (unsigned int j = 0; j < currentTileGrid[i].size(); j++) {
+            if (currentTileGrid[i][j]) {
+                if (currentTileGrid[i][j]->getValue() == tileType::VOLTORB) {
+                    if (currentTileGrid[i][j]->isFlipped()) {
                         return true;
                     }
                 }

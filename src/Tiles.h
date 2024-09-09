@@ -322,10 +322,6 @@ class infoTile  {
                         }
                     }
                 }
-                // // Update the pipe length and position for row marking
-                // backgroundPipe.setWidth(position.x - tileGrid[myRowIndex][0]->getPosition().x);
-                // backgroundPipe.setHeight(height / 5);
-                // backgroundPipe.setPosition(position.x - backgroundPipe.getWidth() + 30, position.y + height / 2 - backgroundPipe.getHeight() / 2);
 
                 // Calculate the pipe width from the first to the last tile in the row
                 double startX = tileGrid[myRowIndex][0]->getPosition().x + tileGrid[myRowIndex][0]->getWidth()/2 ;
@@ -349,10 +345,6 @@ class infoTile  {
                         }
                     }
                 }
-                // Update the pipe length and position for column marking
-                // backgroundPipe.setWidth(width / 5);
-                // backgroundPipe.setHeight(position.y - tileGrid[0][myColIndex]->getPosition().y);
-                // backgroundPipe.setPosition(position.x + width / 2 - backgroundPipe.getWidth() / 2, position.y - backgroundPipe.getHeight() + 30);
 
                 // Calculate the pipe height from the first to the last tile in the column
                 double startY = tileGrid[0][myColIndex]->getPosition().y + tileGrid[0][myColIndex]->getHeight()/2;
@@ -399,8 +391,8 @@ class infoTile  {
 
             //Time to finally write the text and draw the voltorb
             ofSetColor(ofColor::black);
+
             // Draw the top part (point count)
-            // font.drawString(topPart, position.x + width / 2 - font.stringWidth(topPart) / 2, position.y + height / 4);
             font.drawString(topPart, position.x + width / 2 - font.stringWidth(topPart) / 2, position.y + height * 2/5 - height * 1/18);
             font.drawString(bottomPart, position.x + width / 2 - font.stringWidth(bottomPart) / 2, position.y + height - 16);
 
