@@ -55,8 +55,7 @@ void ofApp::setup(){
     // TODO: points phase
     pullPointsFromBank(); 
     
-    
-    checkTimer = 15; // FIXME: Idk if to keep or not
+
 
 }
 
