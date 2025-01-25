@@ -39,13 +39,15 @@ void infoTile::countPoints(vector<vector<shared_ptr<gameTile>>>& tileGrid) {
         }
     // This is to set up the background pipe that runs across the row
         // Calculate the pipe width from the first to the last tile in the row
-        double startX = tileGrid[myRowIndex][0]->getPosition().x + tileGrid[myRowIndex][0]->getWidth()/2 ;
-        double endX = this->position.x;
+        // double startX = tileGrid[myRowIndex - 1][0]->getPosition().x + tileGrid[myRowIndex - 1][0]->getWidth()/2 ;
+        // double endX = this->position.x;
 
-        backgroundPipe.setWidth(endX - startX);
-        backgroundPipe.setHeight(height / 7);
-        backgroundPipe.setPosition(startX, position.y + height / 2 - backgroundPipe.getHeight() / 2);
+        // backgroundPipe.setWidth(endX - startX);
+        // backgroundPipe.setHeight(height / 7);
+        // backgroundPipe.setPosition(startX, position.y + height / 2 - backgroundPipe.getHeight() / 2);
     } 
+
+    
     // if we aren't marking the row, then we mark the column
     else {
         int myColIndex = row_col[1];
@@ -60,12 +62,12 @@ void infoTile::countPoints(vector<vector<shared_ptr<gameTile>>>& tileGrid) {
         }
 
         // Calculate the pipe height from the first to the last tile in the column
-        double startY = tileGrid[0][myColIndex]->getPosition().y + tileGrid[0][myColIndex]->getHeight()/2;
-        double endY = this->position.y;
+        // double startY = tileGrid[0][myColIndex - 1]->getPosition().y + tileGrid[0][myColIndex - 1]->getHeight()/2;
+        // double endY = this->position.y;
 
-        backgroundPipe.setWidth(width / 7);
-        backgroundPipe.setHeight(endY - startY);
-        backgroundPipe.setPosition(position.x + width / 2 - backgroundPipe.getWidth() / 2, startY);
+        // backgroundPipe.setWidth(width / 7);
+        // backgroundPipe.setHeight(endY - startY);
+        // backgroundPipe.setPosition(position.x + width / 2 - backgroundPipe.getWidth() / 2, startY);
     }
     // small if to write a 0 if the number is less than 10
     if (PointCount < 10) {
@@ -81,23 +83,23 @@ void infoTile::countPoints(vector<vector<shared_ptr<gameTile>>>& tileGrid) {
 void infoTile::draw() {
     ofSetColor(ofColor::white);
     borderImage.draw(position.x, position.y, width, height);
-    ofRectangle pipeBorder = ofRectangle(backgroundPipe.getX() - 10.5, backgroundPipe.getY() - 8.5, backgroundPipe.getWidth() + 21, backgroundPipe.getHeight() + 17.5);
-    ofDrawRectangle(pipeBorder);
+    // ofRectangle pipeBorder = ofRectangle(backgroundPipe.getX() - 10.5, backgroundPipe.getY() - 8.5, backgroundPipe.getWidth() + 21, backgroundPipe.getHeight() + 17.5);
+    // ofDrawRectangle(pipeBorder);
     //TODO: Phase 3
     ofSetColor(TileColor);
     ofRectangle rect2 = ofRectangle(position.x + 5.5, position.y + 5.5, width * 0.86, height * 0.86);
     ofDrawRectRounded(rect2, 8);
     
-    ofDrawRectangle(backgroundPipe);
+    // ofDrawRectangle(backgroundPipe);
 
     ofSetColor(ofColor::white);
 
     ofSetLineWidth(7);
     if(markRow) {
-        ofDrawLine(position.x, pipeBorder.getY() + 3.5, position.x + width, pipeBorder.getY() + 3.5);
+        // ofDrawLine(position.x, pipeBorder.getY() + 3.5, position.x + width, pipeBorder.getY() + 3.5);
     }
     else {
-        ofDrawLine(position.x, position.y + height/2 - 10.2, position.x + width, position.y + height/2 - 10.2);
+        // ofDrawLine(position.x, position.y + height/2 - 10.2, position.x + width, position.y + height/2 - 10.2);
     }
 
     //Time to finally write the text and draw the voltorb

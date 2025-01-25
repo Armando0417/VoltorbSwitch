@@ -2,105 +2,128 @@
 
 /*
     Author Note:
-        - This file is for the implementation of the 'GameTile' class. 
-        All of the code of how the methods work will be here!
+        - This file is for the implementation of the 'GameTiles class. 
+        - All of the code of how the methods work will be here!
 */
 
-gameTile::gameTile(int x_pos, int y_pos, int row, int col) {
-     //TODO: phase 1: (reverse the values)
+gameTile::gameTile(Databank::Image_Types _value, int x_pos, int y_pos, int row, int col) {
+        value = _value;
+        position = ofPoint(x_pos, y_pos);
         row_col[0] = row;
         row_col[1] = col;
-        position = ofPoint(x_pos, y_pos);
         flipped = false;
         hovering = false;
-        // If you see this and ask yourself: "why is the front image not there?" 
-        //      - it's because when i make the tile, the tile doesn't have the value to give it a front image appropriate to it.
-        backOfTile.load("Assets/TileImages/backOfTile.png");
-        hoverImage.load("Assets/TileImages/hover.png");
-        borderImage.load("Assets/TileImages/Border2.png");
-        flipSound.setVolume(1.0);
+
+        Databank& bank = Databank::getInstance(); // Author's note: This is to extract the relevant images stored in the bank
+
+        backOfTile = bank.getTileImages()[Databank::Image_Types::BACK];
+        
+        if (_value == Databank::Image_Types::VOLTORB) {
+            frontOfTile = bank.getTileImages()[Databank::Image_Types::VOLTORB];
+        }
+        else if (_value == Databank::Image_Types::ONE) {
+            frontOfTile = bank.getTileImages()[Databank::Image_Types::ONE];
+        }
+        else if (_value == Databank::Image_Types::TWO) {
+            frontOfTile = bank.getTileImages()[Databank::Image_Types::TWO];
+        }
+        else if (_value == Databank::Image_Types::THREE) {
+            frontOfTile = bank.getTileImages()[Databank::Image_Types::THREE];
+        }
+
+        animFrames = bank.getAnimFrames()[_value > 0 ? Databank::Tile_Types::POINTS : Databank::Tile_Types::BOMB];
+        tileFlipFrames = bank.getTileFlipFrames()[value];
+
 }
 
 void gameTile::update() {
     if (isFlipping) {
-        rotationAngle += 10; // Adjust speed as needed
-        if (rotationAngle >= 180) {
-            rotationAngle = 180;
-            isFlipping = false;
-            flipOn(); // Set the tile as flipped after 180 degrees
-            playAnimation = true;
+        if (++animTime > ANIM_FLIP_DURATION) {
+            animTime = 0;
+            currFlipFrameIndex++;
+            if (currFlipFrameIndex == tileFlipFrames.size()) {
+                Databank::getInstance().playSound(Databank::Sound_Effects::FLIP_TILE);
+                isFlipping = false;
+                flipped = true;
+                currFlipFrameIndex = tileFlipFrames.size() - 1;
+            }
         }
     }
 }
 
- // If you wondering about the matrix and ofTranslate, basically it's so that the tile can rotate on screen.
+
 void gameTile::draw() {
-    ofPushMatrix();
-    
-    // Translate to the center of the tile
-    ofTranslate(position.x + width / 2, position.y + height / 2);
+    ofNoFill();
+    ofDrawRectangle(position.x, position.y, width, height);
+    ofFill();
+    if (flipped) {
+        frontOfTile.draw(position.x, position.y, width, height);
 
-    // Rotate around the X-axis to simulate the flipping effect
-    ofRotateXDeg(rotationAngle);
-
-    // Check the rotation angle to determine which side to draw
-    if (rotationAngle < 90 || rotationAngle >= 270) {
-
-        // Draw the back of the tile normally
-        backOfTile.draw(-width / 2, -height / 2, width, height);
-    } 
-    else {
-        // Draw the front of the tile but flip it vertically
-        ofScale(1, -1); // Flip the image vertically
-        frontOfTile.draw(-width / 2, -height / 2, width, height);
-    }
-
-    // Draw the hover image if the tile is being hovered
-    if (hovering) {
-        hoverImage.draw(-width / 2, -height / 2, width, height);
-    }
-    else {
-        borderImage.draw(-width / 2, -height / 2, width, height);
-    }
-
-    // Play the animation if the tile is flipped and the animation is active
-    if (playAnimation) {
-        if (currentFrame < animationFrames.size()) {
-                ofSleepMillis(100); // small delay to make things smooth
-                animationFrames[currentFrame].draw(-width / 2, -height / 2, width, height);
-                currentFrame++;
-            
-        } 
+        if (delayOverlayTimer <= ANIM_OVERLAY_DELAY) {
+            delayOverlayTimer += 0.1;
+        }
         else {
-            playAnimation = false;
-            currentFrame = 0;
+            drawTileAnimation();
         }
     }
 
-    ofPopMatrix();
-}
+    else if (isFlipping) {
+        flipAnimationFrame = tileFlipFrames[currFlipFrameIndex];
+        flipAnimationFrame.draw(position.x, position.y, width, height);
+    }
 
-
-void gameTile::setValue(tileType _value) {
-    value = _value;
-    if (value == VOLTORB) {
-        frontOfTile.load("Assets/TileImages/Voltorb.png");
-        flipSound.load("Sounds/sfx/flipExplosionSound.mp3");
-    }
-    else if (value == ONE) {
-        frontOfTile.load("Assets/TileImages/One.png");
-        flipSound.load("Sounds/sfx/flipSound.mp3");
-    }
-    else if (value == TWO) {
-        frontOfTile.load("Assets/TileImages/Two.png");
-        flipSound.load("Sounds/sfx/flipSound.mp3");
-    }
-    else if (value == THREE) {
-        frontOfTile.load("Assets/TileImages/Three.png");
-        flipSound.load("Sounds/sfx/flipSound.mp3");
+    else {
+        backOfTile.draw(position.x, position.y, width, height);
     }
 }
 
+void gameTile::drawTileAnimation() {
+    if (animPlayed) return;
+    
+    // Databank& bank = Databank::getInstance(); 
+
+    if (value == Databank::Image_Types::VOLTORB) { 
+        animationOverlayFrame = animFrames[currentAnimationFrameIndex];
+        vector<double> layoutParams = getAnimLayoutParams(true);
+        animationOverlayFrame.draw(layoutParams[0], layoutParams[1], layoutParams[2], layoutParams[3]);
+    }
+
+    else {  
+        animationOverlayFrame = animFrames[currentAnimationFrameIndex];  
+        vector<double> layoutParams = getAnimLayoutParams(false);
+        animationOverlayFrame.draw(layoutParams[0], layoutParams[1], layoutParams[2], layoutParams[3]);
+    }
+
+    if (++tileAnimTime > ANIM_OVERLAY_DURATION) {
+        tileAnimTime = 0;
+        currentAnimationFrameIndex++;
+        if (currentAnimationFrameIndex == animFrames.size()) {
+            animPlayed = true;
+        }
+    }
+}
+
+vector<double> gameTile::getAnimLayoutParams(bool isBomb) {
+    if (!isBomb) {
+        double offSetX = position.x - (width/2);
+        double offSetY = position.y - (height/2);
+        return {offSetX, offSetY, width * 2, height * 2};
+    }
+    else if (currentAnimationFrameIndex >= 3 && isBomb) {
+        // Center the bomb image when the index is greater than or equal to 3
+        double scaledWidth = width * 3;
+        double scaledHeight = height * 3;
+
+        // Adjust position to center the scaled image
+       double offSetX = position.x - (width);
+        double offSetY = position.y - (height);
+
+        return {offSetX, offSetY, scaledWidth, scaledHeight};
+    }
+    else {
+        return {position.x, position.y, width, height};
+    }
+ }
 
 
 /*
@@ -111,14 +134,6 @@ void gameTile::setValue(tileType _value) {
 
 */
 
-void gameTile::isHovering(int x, int y) {
-    if ((x > position.x) && (x < position.x + width) && (y > position.y) && (y < position.y + height)) {
-        hovering = true;
-    }
-    else {
-        hovering = false;
-    }
-}
 
 bool gameTile::mouseHovering(int x, int y) {
     if ((x > position.x) && (x < position.x + width) && (y > position.y) && (y < position.y + height)) {
@@ -129,12 +144,12 @@ bool gameTile::mouseHovering(int x, int y) {
     }
 }
 
-// small method to start the animation of flipping
-void gameTile::startFlip() { 
-    isFlipping = true; 
-    flipSound.play(); 
+
+
+bool gameTile::isFlipped() { return flipped; }
+
+void gameTile::tileFlipTrigger() {
+    isFlipping = true;
 }
 
-void gameTile::flipOn() { flipped = true; }
-void gameTile::flipOff() { flipped = false; }
-bool gameTile::isFlipped() { return flipped; }
+

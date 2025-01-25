@@ -1,9 +1,10 @@
 #pragma once
 
 #include "ofMain.h"
-#include "gameTiles.h"
-#include "infoTiles.h"
-#include "gameGrids.h"
+// #include "gameTiles.h"
+// #include "infoTiles.h"
+// #include "gameGrids.h"
+#include "GameManager.h"
 
 
 class ofApp : public ofBaseApp{
@@ -26,16 +27,10 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
-
-	// Game Methods
-		void setupLevel();
 		
-	//TODO: Phase 2
-		bool checkDefeat();
-		bool checkVictory();
-		bool gameFinished;
-		bool victory;
-		bool defeat;
+		GameManager* gameManager;
+		ofImage globalAnimationFrame; // This is the image that will be the explosion and points animation.
+		
 
 
 		void pullPointsFromBank(){
@@ -58,65 +53,13 @@ class ofApp : public ofBaseApp{
 		}
 
 
-	// These are going to be for the levels themselves. Each GameGrid contains a 5x5 grid of GameTiles & 1 InfoTile per row AND column.
-	// FIXME: CHANGE TO OBJECTS
-	//TODO: Phase 3
-		vector<gameGrids> levelList;
-		vector<vector<shared_ptr<gameTile>>> currentTileGrid; 
-		vector<vector<shared_ptr<infoTile>>> currentInfoTileGrid;
 
-	//Index for the current level in the levelList
-		unsigned int currentLevel = 0;
-
-	//TODO: These are for the game
-		map<tileType, int> tileValueCounts;
-	
-	//Animations for the tiles 
-	// (Reason they are here is so that each tile doesn't have to create a copy of the animation. Instead, you give them this vector for the animations)
-		vector<ofImage> success_animations;
-		vector<ofImage> voltorb_explosion;
-
-
-	// These are for the OST
 		ofSoundPlayer ost;
-		ofSoundPlayer pointMult_sfx;
-		ofSoundPlayer levelBeat_sfx;
-		ofSoundPlayer pointsTallied_sfx;
-
-
-	// These are for the UI
-	//FIXME: Make only one font
-		ofTrueTypeFont titleFont;
-		ofTrueTypeFont font;
-
-	//small flag to toggle the rules & points
-		bool showRules = true;
-		bool showPoints = true;
-
-	// Images for the ui
-		ofImage rules;
-		ofImage points;
-
-
-		void countTiles();
-		void updateTileCount(tileType type);
-
-	//TODO: Phase 2
-		int checkTimer = 0;
-
 
 	// Variables to keep track of current score and stored score
 		int currentPoints = 1;
 		int storedPoints = 0;
 
 
-	//TODO: Phase 2
-	//Boolean to make sure enough time passes before the next tile can be flipped
-		bool canPlay = true;
-
 
 };
-
-
-
-
